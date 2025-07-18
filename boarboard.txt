@@ -1,0 +1,39 @@
+BOARBOARD🐗📔
+
+TO-DO APP con Kanban Board & Dashboard.
+
+Objetivos:
+ - Crear un gestor de tareas minimalista, estético y funcional.
+ - Implementar tecnologías de interés.
+ 
+Alcance:
+ - API que gestiona las tareas.
+ - Creación y visualización de tareas desde el frontend en React.
+ - Drag & Drop para el Kanban Board.
+ - Generación de tablas y gráficos con estadísticas de las tareas.
+
+Tecnologías:
+ - Django con Django Rest Framework.
+ - Bun: React con Vite y SWC.
+ - Pytest + tests de Django para tests de backend
+   (unitarios, de integración, vistas, serializadores, medición de tiempos, etc.)
+ - React Testing Library & Happy Dom para tests de frontend.
+ - Pandas y Seaborn para cálculos y visualización de estadísticas
+   (para la generación de documentos, ya que en el dashboard se generarán con React).
+ - Scikit-learn para la predicción de estadísticas para las siguientes tareas
+   (probabilidad de compleción, fecha estimada, etc.)
+ - VanillaTilt y Tailwind CSS para enrriquecer el frontend.
+ 
+Arquitectura y diseño:
+ - MTV (Django) con separación de frontend y backend.
+ - Diagramas de clases y usos.
+ - Modos claro y oscuro, ambos con una versión de alto contraste.
+ 
+Planes de despliegue:
+ - Backend: API en PythonAnywhere.
+ - Frontend: en Netlify.
+ - Dominio: usar dominio gratis de Netlify o registrar uno básico.
+ 
+Fechas clave (dd-mm-aaaa):
+ - 30/6/2025
+    * Inicio de planificación del proyecto.
