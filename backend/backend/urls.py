@@ -17,8 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from .views import api_root
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
+
+    path("api/", api_root, name="api-root"),
+    path("api/tasks/", include("task.api.urls")),
+    path("api/columns/", include("column.api.urls")),
+    path("api/boards/", include("board.api.urls")),
 ]
