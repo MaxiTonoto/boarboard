@@ -3,7 +3,7 @@ from board.models import Board
 from column.api.serializers import ColumnSerializer
 
 class BoardSerializer(serializers.ModelSerializer):
-    column_set = ColumnSerializer(many=True)
+    column_set = ColumnSerializer(many=True,required=False)
 
     class Meta:
         model = Board
