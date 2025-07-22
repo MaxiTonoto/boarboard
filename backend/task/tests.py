@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from column.models import Column
 from task.models import Task
 from board.models import Board
-a = """
+
 class TaskModelSingleColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
@@ -91,7 +91,6 @@ class TaskModelSingleColumnTest(TestCase):
         orders = list(Task.objects.order_by("order").values_list("title", flat=True))
         self.assertEqual(orders, ["Task Inserted", "Task 1", "Task 2"])
 
-"""
 class TaskModelChangeColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")

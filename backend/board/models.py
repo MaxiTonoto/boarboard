@@ -9,3 +9,6 @@ class Board(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User,
         on_delete=models.CASCADE, related_name="board_owner")
+
+    def __str__(self):
+        return f"{self.title}"
