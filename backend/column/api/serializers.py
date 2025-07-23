@@ -3,8 +3,8 @@ from column.models import Column
 from task.api.serializers import TaskSerializer
 
 class ColumnSerializer(serializers.ModelSerializer):
-    task_set = TaskSerializer(many=True, required=False)
+    tasks = TaskSerializer(many=True, required=False)
 
     class Meta:
         model = Column
-        fields = ["id", "title", "order", "task_set", "board_id",]
+        fields = ["id", "title", "order", "tasks", "board_id",]
