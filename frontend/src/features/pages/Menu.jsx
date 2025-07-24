@@ -3,17 +3,14 @@ import { getBoards } from "../../api/boardApi.js";
 import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
 
 
-export function Menu() {
+export function Menu({ onOpenBoard }) {
   const [userBoards, setUserBoards] = useState([]);
 
   useEffect(() => {
     const fetchBoards = async () => {
       let boards = await getBoards();
       setUserBoards(boards.data);
-    };
-    
-    fetchBoards();
-
+    }; fetchBoards();
   }, []);
 
   return (
@@ -26,30 +23,30 @@ export function Menu() {
           Your boards
         </h2>
         <section>
-          {userBoards === 0 && (
-            <p className="text-left text-white text-lg">
-              {" "}
-              - You have no boards yet :p
-            </p>
-          )}
+          <p className="text-left text-white text-lg">
+            - Nothing here yet :p
+          </p>
         </section>
         
+
+
         <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem] pt-[3rem]">
           Example boards
         </h2>
         <section className="h-[20%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded">
           { userBoards.length > 0 ? (
-            userBoards.map((item, index) => {
+            userBoards.map((board, index) => {
 
               return (
-                <a
+                <button
                   key={index}
-                  className="w-[10rem] h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative"
+                  className="w-[10rem] h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer"
+                  onClick={ () => {onOpenBoard(board)} }
                 >
                   <BoardThumbnail
-                    props={item}
+                    props={board}
                   />
-                </a>
+                </button>
               );
             })
           ) : (
