@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { getBoards } from "../../api/boardApi.js";
 import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
 
-
 export function Menu({ onOpenBoard }) {
   const [userBoards, setUserBoards] = useState([]);
 
