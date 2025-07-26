@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export function ColumnDropdown({ props, onCreateTask }) {
+export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -10,7 +10,7 @@ export function ColumnDropdown({ props, onCreateTask }) {
 
   return (
     <button
-      className="absolute top-[50%] right-[3%] translate-y-[-50%] bg-[rgba(0,0,0,0.25)] px-[0.5rem] rounded-lg"
+      className="absolute top-[50%] right-[3%] translate-y-[-50%] bg-[rgba(0,0,0,0.25)] px-[0.5rem] rounded-lg z-10 cursor-pointer"
       onClick={toggleDropdown}
     >
       <p className="translate-y-[-15%]">⌄</p>
@@ -20,7 +20,10 @@ export function ColumnDropdown({ props, onCreateTask }) {
           onMouseLeave={toggleDropdown}
         >
           <li className="hover:bg-[rgba(100,100,100,0.5)] transition px-[0.5rem] rounded cursor-pointer"
-          onClick={ onCreateTask }>
+          onClick={ () => {
+            onCreateTask();
+            onOpenTaskCreation(props.id);
+          }}>
             ➕ Create
           </li>
           <hr className="my-[0.5rem]"></hr>

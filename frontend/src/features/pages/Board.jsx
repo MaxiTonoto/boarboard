@@ -5,6 +5,7 @@ import React, { useState } from "react";
 export function Board({ props, onBack }) {
 
   const [creatingTask, setCreatingTask] = useState(false);
+  const [creatingTaskColId, setCreatingTaskColId] = useState(props.columns[0].id);
   const openCreateTaskForm = () => {setCreatingTask(true);};
   const closeForm = () => {setCreatingTask(false);};
 
@@ -14,6 +15,7 @@ export function Board({ props, onBack }) {
         <CreateTaskForm
           columnList={props.columns}
           onCloseForm={ closeForm }
+          defaultColumnId = { creatingTaskColId }
         />
       }
       <button
@@ -35,6 +37,7 @@ export function Board({ props, onBack }) {
                 key={col.id}
                 col={col}
                 onCreateTask={ openCreateTaskForm }
+                onOpenTaskCreation={ setCreatingTaskColId }
               />
             );
           })

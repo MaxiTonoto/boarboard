@@ -12,5 +12,5 @@ export const postTask = (task) => {
 
 export const deleteTask = (taskId) => {
     
-    return axios.delete(TASK_URL + taskId);
+    return axios.delete(TASK_URL + taskId + "/");
 };

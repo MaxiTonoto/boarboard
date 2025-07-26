@@ -1,7 +1,8 @@
 import { TaskCard } from "./TaskCard.jsx";
 import { ColumnDropdown } from "./ColumnDropdown.jsx";
 
-export function Column({ col, onCreateTask }) {
+export function Column({ col, onCreateTask, onOpenTaskCreation }) {
+
 
 
   return (
@@ -11,6 +12,8 @@ export function Column({ col, onCreateTask }) {
         <ColumnDropdown
           props={col}
           onCreateTask={ onCreateTask }
+          defaultColumnId={col.id}
+          onOpenTaskCreation={ onOpenTaskCreation }
         />
       </div>
       <div className="flex flex-col gap-[0.5rem] p-[0.5rem]">
