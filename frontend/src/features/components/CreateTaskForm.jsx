@@ -19,7 +19,6 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           order: 0,
           owner: 1,
         });
-        console.log(response);
       } catch (error) {
         console.error(error);
       }
