@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getBoards } from "../../api/boardApi.js";
 import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
+import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
 
 export function Menu({ onOpenBoard }) {
   const [userBoards, setUserBoards] = useState([]);
@@ -14,10 +15,11 @@ export function Menu({ onOpenBoard }) {
 
   return (
     <main className="w-[100%] h-[100%]">
-      <h1 className="text-center text-4xl py-[0.5rem] text-white w-[100%]">
+      <OpenConfigButton />
+      <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
         Main Menu
       </h1>
-      <section className="w-[98%] h-[90%] m-auto p-[0.5rem] bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_8px_#000]">
+      <section className="w-[98%] h-[88%] m-auto p-[0.5rem] bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_8px_#000]">
         <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem]">
           Your boards
         </h2>

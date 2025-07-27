@@ -22,7 +22,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           owner: 1,
         });
         if (response.status === 201) {
-          toast.success(`Created task ${response.data.title}"`, {
+          toast.success(`Created task ${response.data.title}`, {
             position: "bottom-left",
             autoClose: 3000,
             closeOnClick: true,
@@ -30,9 +30,19 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
             theme: "dark",
             transition: Bounce,
           });
+
+          setTitle("");
+          setDescription("");
         }
       } catch (error) {
-        console.error(error);
+        toast.error(`Error creating task: ${error.message}`, {
+          position: "bottom-left",
+          autoClose: 3000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: "dark",
+          transition: Bounce,
+        });
       }
     };
 
@@ -68,6 +78,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           className="border-2 border-[rgba(212,212,212,0.5)] rounded-md w-[75%] text-2xl text-center"
           placeholder="My new task, yada yada..."
           onChange={(e) => setTitle(e.target.value)}
+          value={ title }
           maxLength={150}
           minLength={1}
           type="text"
@@ -88,6 +99,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           className="border-2 border-[rgba(212,212,212,0.5)] text-xl p-[0.5rem] rounded-md w-[75%] min-h-[3rem] resize-none"
           placeholder="This task is very interesting, wiwi..."
           onChange={(e) => setDescription(e.target.value)}
+          value={ description }
           maxLength={1024}
           minLength={1}
           required

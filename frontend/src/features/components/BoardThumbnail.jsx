@@ -19,7 +19,7 @@ export function BoardThumbnail({ props }) {
                     <section
                       key={item.id}
                       style={{ backgroundColor:`rgba(${thisR},${thisG},${thisB},0.1)` }}
-                      className='h-[100%] min-w-[25%] w-[25%] max-w-[25%] rounded p-[0.25rem] flex flex-col gap-[0.25rem]'>
+                      className='h-[100%] min-w-[25%] w-[25%] max-w-[25%] rounded p-[0.25rem] flex flex-col gap-[0.25rem] overflow-hidden'>
                       
                       {
                         item.tasks.map((task) => {

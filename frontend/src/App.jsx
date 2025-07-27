@@ -15,6 +15,7 @@ function App() {
   return (
     <> 
       <ToastContainer/>
+      
       { currentScreen === "auth" && 
         <Auth
           onBack={ gotoMainMenu } 
