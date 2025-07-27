@@ -1,5 +1,7 @@
 import { postTask } from "../../api/taskApi";
+import { Bounce, toast } from "react-toastify";
 import React, { useState, useEffect } from "react";
+
 
 export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
   const [title, setTitle] = useState("");
@@ -19,6 +21,16 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           order: 0,
           owner: 1,
         });
+        if (response.status === 201) {
+          toast.success(`Created task ${response.data.title}"`, {
+            position: "bottom-left",
+            autoClose: 3000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            theme: "dark",
+            transition: Bounce,
+          });
+        }
       } catch (error) {
         console.error(error);
       }
