@@ -7,10 +7,26 @@ const TASK_URL = API_URL + "/tasks/";
 
 export const postTask = (task) => {
     
-    return axios.post(TASK_URL, task);
+  return axios.post(TASK_URL, task);
+};
+
+export const patchTaskOrder = (taskId, newOrder) => {
+    
+  return axios.patch(
+    TASK_URL + taskId + "/",
+    {order: newOrder,}
+  );
+};
+
+export const patchTaskColumn = (taskId, newColumn) => {
+    
+  return axios.patch(
+    TASK_URL + taskId + "/",
+    {column: newColumn,}
+  );
 };
 
 export const deleteTask = (taskId) => {
     
-    return axios.delete(TASK_URL + taskId + "/");
+  return axios.delete(TASK_URL + taskId + "/");
 };

@@ -3,21 +3,20 @@ import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
 import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
 import React, { useState } from "react";
 import { DndContext } from "@dnd-kit/core";
+import { patchTaskColumn } from "../../api/taskApi.js";
 
 export function Board({ props, onBack }) {
   const [creatingTask, setCreatingTask] = useState(false);
-  const [creatingTaskColId, setCreatingTaskColId] = useState(
-    props.columns[0].id
-  );
+  const [creatingTaskColId, setCreatingTaskColId] = useState(props.columns[0].id);
   const openCreateTaskForm = () => {setCreatingTask(true);};
   const closeForm = () => {setCreatingTask(false);};
 
   const handleDragEnd = (e) => {
     const { active, over } = e;
-
-    if (over && active && over.id !== active.id) {
-      console.log(`Task ${active.id} dropped on column ${over.id}`);
-    }
+    if (!active || !over) return;
+    if (active.data.current.fromColumn !== over.id) {
+      patchTaskColumn(active.id, over.id);
+    };
   };
 
   return (
@@ -39,7 +38,9 @@ export function Board({ props, onBack }) {
       <h1 className="text-4xl text-white text-center w-[100%] py-[0.5rem]">
         {props.title}
       </h1>
-      <DndContext onDragEnd={ handleDragEnd }>
+      <DndContext 
+        onDragEnd={ handleDragEnd }
+      >
         <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-scroll">
           {props.columns.map((col, index) => {
             return (

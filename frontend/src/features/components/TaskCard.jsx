@@ -9,6 +9,9 @@ export function TaskCard({ task }) {
   const currentCard = useRef(null);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
+    data: {
+      fromColumn: task.column,
+    },
   })
   const styles = {
     transform: CSS.Translate.toString(transform),
