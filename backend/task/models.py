@@ -18,6 +18,12 @@ class Task(models.Model):
     def __str__(self, *args, **kwargs):
         return f"{self.order} - {self.title}"
 
+    def delete(self, *args, **kwargs):
+        column = self.column
+        order = self.order
+        super().delete(*args, **kwargs)
+        Task.objects.filter(column=column, order__gt=order).update(order=F("order") - 1)
+
     def save(self, *args, **kwargs):
         if not self.pk:  # new item
             max_order = (
