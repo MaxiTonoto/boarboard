@@ -1,12 +1,16 @@
 import { TaskCard } from "./TaskCard.jsx";
 import { ColumnDropdown } from "./ColumnDropdown.jsx";
+import { useDroppable } from "@dnd-kit/core";
 
 export function Column({ col, onCreateTask, onOpenTaskCreation }) {
 
+  const { isOver, setNodeRef } = useDroppable({
+    id: col.id,
+  });
 
 
   return (
-    <div className="text-white h-[100%] min-w-[33%] rounded overflow-hidden bg-[rgba(120,120,120,0.25)] flex flex-col">
+    <div className="text-white h-[100%] min-w-[33%] rounded bg-[rgba(120,120,120,0.25)] flex flex-col">
 
       <div className="text-center w-[100%] bg-[rgba(255,255,255,0.05)] py-[0.5rem] rounded text-xl shadow-xl relative z-10 sticky top-0">
         {col.title}
@@ -18,7 +22,10 @@ export function Column({ col, onCreateTask, onOpenTaskCreation }) {
         />
       </div>
 
-      <div className="flex flex-col gap-[0.5rem] p-[0.5rem] overflow-y-auto flex-1">
+      <div
+        className="flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%]"
+        ref={setNodeRef}
+      >
         {col.tasks.map((task) => {
           return <TaskCard key={task.id} task={task} />;
         })}
