@@ -7,8 +7,8 @@ from board.models import Board
 class TaskModelSingleColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
-        self.board = Board.objects.create(title="TestBoard", owner=self.user)
-        self.column = Column.objects.create(title="To Do", order=1, board=self.board)
+        self.board = Board.objects.create(title="TestBoard", owner_id=self.user)
+        self.column = Column.objects.create(title="To Do", order=1, board_id=self.board)
 
     def test_create_task_with_auto_order(self):
         task1 = Task.objects.create(title="Task 1", description="desc", order=1, column=self.column, owner=self.user)
@@ -35,9 +35,9 @@ class TaskModelSingleColumnTest(TestCase):
         for task in tasks.values():
             task.refresh_from_db()
 
-        self.assertEqual(tasks["Task 1"].order, 2)
+        self.assertEqual(tasks["Task 1"].order, 3)
         self.assertEqual(tasks["Task 2"].order, 1)
-        self.assertEqual(tasks["Task 3"].order, 3)  
+        self.assertEqual(tasks["Task 3"].order, 2)  
         self.assertEqual(tasks["Task 4"].order, 4)  
     
     def test_task_move_down_past_bottom_in_same_column(self):
@@ -55,10 +55,10 @@ class TaskModelSingleColumnTest(TestCase):
         for task in tasks.values():
             task.refresh_from_db()
 
-        self.assertEqual(tasks["Task 1"].order, 2)
+        self.assertEqual(tasks["Task 1"].order, 4)
         self.assertEqual(tasks["Task 2"].order, 1)
-        self.assertEqual(tasks["Task 3"].order, 3)  
-        self.assertEqual(tasks["Task 4"].order, 4)  
+        self.assertEqual(tasks["Task 3"].order, 2)  
+        self.assertEqual(tasks["Task 4"].order, 3)  
 
     def test_task_move_up_in_same_column(self):
         tasks = [
@@ -91,12 +91,13 @@ class TaskModelSingleColumnTest(TestCase):
         orders = list(Task.objects.order_by("order").values_list("title", flat=True))
         self.assertEqual(orders, ["Task Inserted", "Task 1", "Task 2"])
 
+
 class TaskModelChangeColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
-        self.board = Board.objects.create(title="TestBoard", owner=self.user)
-        self.column1 = Column.objects.create(title="Pending", order=1, board=self.board)
-        self.column2 = Column.objects.create(title="Done", order=2, board=self.board)
+        self.board = Board.objects.create(title="TestBoard", owner_id=self.user)
+        self.column1 = Column.objects.create(title="Pending", order=1, board_id=self.board)
+        self.column2 = Column.objects.create(title="Done", order=2, board_id=self.board)
 
         for i in range(1, 6):
             Task.objects.create(
@@ -118,7 +119,7 @@ class TaskModelChangeColumnTest(TestCase):
 
         self.assertNotEqual(task1.order, 100)
         self.assertEqual(task1.column, self.column2)
-        self.assertIn(task1, self.column2.task_set.all())
+        self.assertIn(task1, self.column2.tasks.all())
 
     def test_change_column_to_occupied(self):
         task3 = Task.objects.get(title="Pending Task 3")
@@ -129,7 +130,7 @@ class TaskModelChangeColumnTest(TestCase):
 
         self.assertEqual(task3.order, 3)
         self.assertEqual(task3.column, self.column2)
-        self.assertIn(task3, self.column2.task_set.all())
+        self.assertIn(task3, self.column2.tasks.all())
 
     def test_moved_task_gap_filled(self):
         initial_column1_count = Task.objects.filter(column=self.column1).count()

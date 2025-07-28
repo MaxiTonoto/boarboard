@@ -1,5 +1,5 @@
-from django.db import models
-from django.db.models import F
+from django.db import models, transaction
+from django.db.models import F, Max
 from board.models import Board
 
 # Create your models here.
@@ -19,57 +19,69 @@ class Column(models.Model):
     def __str__(self):
         return f"{self.board_id} - {self.order} - {self.title}"
 
-    def save(self, *args, **kwargs):
+    def _handle_new_column(self):
+        max_column = Column.objects.filter(
+                board_id=self.board_id
+            ).aggregate(max_column=Max("order"))["max_column"] or 0
 
-        if not self.pk:  # new column
-            # get column with max order
-            max_column = (
-                Column.objects.filter(board_id=self.board_id).order_by("-order").first()
-            )
-            # get max order, 0 if no other columns
-            max_column_order = max_column.order if max_column else 0
+        # add column to end pos if no order given
+        # or given order is higher than current max order
+        if (not self.order) or (self.order == 0) or (self.order > max_column):
+            self.order = max_column + 1
+        else:
+            Column.objects.filter(
+                board_id=self.board_id,
+                order__gte=self.order
+            ).update(order=F("order") + 1)
 
-            # add column to end pos if no order given
-            # or given order is higher than current max order
-            if (not self.order) or (self.order == 0) or (self.order > max_column_order):
-                self.order = max_column_order + 1
-            else:
+    def _handle_order_update(self, pre_update):
+        # if column moved right
+        if self.order > pre_update.order:
+            max_order = Column.objects.filter(
+                board_id=self.board_id
+            ).exclude(pk=self.pk).aggregate(max_order=Max("order"))["max_order"] or 0
+
+            if self.order > max_order:   # if new order is higher than max order
+                Column.objects.filter(   # close gap created by moved col
+                    board_id=self.board_id,
+                    order__gt=pre_update.order
+                ).exclude(pk=self.pk).update(order=F("order") - 1)
+                self.order = max_order   # update order
+                return
+
+            Column.objects.filter(   # create gap for moved column
+                board_id=self.board_id,
+                order__gt=pre_update.order,
+                order__lte=self.order,
+            ).exclude(pk=self.pk).update(order=F("order") - 1)
+
+        else:   # column moved left
+            if self.order > 0:
                 Column.objects.filter(
-                    board_id=self.board_id, order__gte=self.order
-                ).update(order=F("order") + 1)
+                    board_id=self.board_id,
+                    order__gte=self.order,
+                    order__lt=pre_update.order
+                ).exclude(pk=self.pk).update(order=F("order") + 1)
+            else:
+                Column.objects.filter(   # make space for moved task
+                    board_id=self.board_id,
+                    order__lt=pre_update.order
+                ).exclude(pk=self.pk).update(order=F("order") + 1)
+                self.order = 1
 
-        else:  # updating a column
-            # pre-update object, very good
-            pre_update = Column.objects.get(pk=self.pk)
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if not self.pk:  # new column
+                self._handle_new_column()
+                return super().save(*args, **kwargs)
 
-            # if order changed
-            if self.order != pre_update.order:
-                # get column with max order
-                max_column = (
-                    Column.objects.filter(board_id=self.board_id)
-                    .order_by("-order")
-                    .exclude(pk=self.pk)
-                    .first()
-                )
-                # get max order, 0 if no other columns
-                max_column_order = max_column.order if max_column else 0
+            else:  # updating a column
+                # pre-update object, very good
+                pre_update = Column.objects.get(pk=self.pk)
 
-                if self.order > max_column_order:
-                    self.order = max_column_order + 1
-                else:
-                    Column.objects.filter(
-                        board_id=self.board_id, order__gte=self.order
-                    ).exclude(pk=self.pk).update(order=F("order") + 1)
+                # if order changed
+                if self.order != pre_update.order:
+                    self._handle_order_update(pre_update)
+                    return super().save(*args, **kwargs)
 
-                # close gaps created by moved column
-
-                # if column had another column next
-                if Column.objects.filter(
-                    board_id=self.board_id, order__gt=pre_update.order
-                ).exists():
-                    # close gap
-                    Column.objects.filter(
-                        board_id=self.board_id, order__gt=pre_update.order
-                    ).exclude(pk=self.pk).update(order=F("order") - 1)
-
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)

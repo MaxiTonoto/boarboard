@@ -1,7 +1,7 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from column.models import Column
-from django.db.models import F, Q
+from django.db.models import F, Q, Max
 
 
 class Task(models.Model):
@@ -24,102 +24,98 @@ class Task(models.Model):
         super().delete(*args, **kwargs)
         Task.objects.filter(column=column, order__gt=order).update(order=F("order") - 1)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:  # new item
-            max_order = (
-                Task.objects.filter(column=self.column)
-                .order_by("-order")
-                .exclude(order=self.order)
-                .first()
-            )
-            if not self.order or self.order == 0:  # place at the end
-                self.order = max_order.order + 1 if max_order else 1
-                super().save(*args, **kwargs)
-                return
+    # helper method
+    def get_max_order(self, column, exc_pk=None):
+        queryset = Task.objects.filter(column=column)
+        if exc_pk:
+            queryset = queryset.exclude(pk=exc_pk)
+        return queryset.aggregate(max_order=Max("order"))["max_order"] or 0
 
-            else:  # create gap for incoming task
-                if Task.objects.filter(column=self.column, order=self.order).exists():
-                    Task.objects.filter(
-                        column=self.column,
-                        order__gte=self.order
-                    ).update(order=F("order") + 1)
-                else:
-                    self.order = max_order.order + 1 if max_order else 1
-                super().save(*args, **kwargs)
-                return
+    def _handle_new_task(self):
+        max_order = self.get_max_order(column=self.column)
 
-        pre_update = Task.objects.get(pk=self.pk)
+        # if empty/invalid order, place task at end
+        if not self.order or self.order <= 0:
+            self.order = max_order + 1
 
-        if self.column == pre_update.column:  # updates on same column
-            if self.order > pre_update.order:
-
-                # check it didn't go past the max order
-                max_task = (
-                    Task.objects.filter(column=self.column)
-                    .order_by("-order")
-                    .exclude(pk=self.pk)
-                    .first()
-                )
-                max_order = max_task.order if max_task else 0  # in case it's empty
-                if self.order >= max_order:
-                    self.order = max_order + 1
-
-                Task.objects.filter(column=self.column, order__gte=self.order).update(
-                    order=F("order") + 1
-                )
-
-                super().save(*args, **kwargs)
-
+        else:
+            # create gap for incoming task  
+            if Task.objects.filter(column=self.column, order=self.order).exists():
                 Task.objects.filter(
-                    column=self.column, order__gt=pre_update.order
-                ).update(order=F("order") - 1)
-
-            elif pre_update.order > self.order:
-                Task.objects.filter(column=self.column, order__gte=self.order).update(
-                    order=F("order") + 1
-                )
-
-                super().save(*args, **kwargs)
-
-                Task.objects.filter(
-                    column=self.column, order__gt=pre_update.order
-                ).update(order=F("order") - 1)
-            return
-
-        else:  # updates on column change
-            new_pos_has_task = (
-                Task.objects.filter(order=self.order, column=self.column)
-                .exclude(pk=self.pk)
-                .exists()
-            )
-
-            if new_pos_has_task:
-                # make space for incoming task
-                Task.objects.filter(column=self.column, order__gte=self.order).exclude(
-                    pk=self.pk
+                    column=self.column, order__gte=self.order
                 ).update(order=F("order") + 1)
+
+            # if given order is higher than max order
+            elif self.order > max_order:
+                self.order = max_order + 1
+        
+    def _handle_same_column_update(self, pre_update):
+        # task moved down or no order given
+        if self.order > pre_update.order:       
+            max_order = self.get_max_order(column=self.column, exc_pk=self.pk)
+            if self.order > max_order:
+                Task.objects.filter(   # close gap created by moved task
+                    column=self.column,
+                    order__gt=pre_update.order
+                ).exclude(pk=self.pk).update(order=F("order") - 1)
+                self.order = max_order
+                return
+
+            Task.objects.filter(   # make space for moved task
+                column=self.column,
+                order__gt=pre_update.order,
+                order__lte=self.order,
+            ).exclude(pk=self.pk).update(order=F("order") - 1)
+
+        else:   # task moved up
+            if self.order > 0:
+                Task.objects.filter(   # make space for moved task
+                    column=self.column,
+                    order__gte=self.order,
+                    order__lt=pre_update.order,
+                ).exclude(pk=self.pk).update(order=F("order") + 1)
             else:
-                # place new task on new column's max order
-                max_task = (
-                    Task.objects.filter(column=self.column)
-                    .order_by("-order")
-                    .exclude(pk=self.pk)
-                    .first()
-                )
-                max_order = max_task.order if max_task else 0  # in case it's empty
-                if self.order >= max_order:
-                    self.order = max_order + 1
+                Task.objects.filter(   # make space for moved task
+                    column=self.column,
+                    order__lt=pre_update.order
+                ).exclude(pk=self.pk).update(order=F("order") + 1)
+                self.order = 1
 
-            # move task before making further changes
-            super().save(*args, **kwargs)
+    def _handle_column_update(self, pre_update):
+        max_order = self.get_max_order(column=self.column, exc_pk=self.pk)
 
-            # close gap if moved task left one
-            if Task.objects.filter(
-                column=pre_update.column, order__gte=pre_update.order + 1
-            ).exists():
-                Task.objects.filter(
-                    column=pre_update.column, order__gt=pre_update.order
-                ).update(order=F("order") + 1)
-            return
+        # give order automatically
+        if not self.order or self.order > max_order:
+            self.order = max_order + 1
 
-        super().save(*args, **kwargs)
+        # if order is given
+        else:
+            # make space for incoming task
+            Task.objects.filter(
+                column=self.column,
+                order__gte=self.order
+            ).exclude(pk=self.pk).update(order=F("order") + 1)
+
+        # Close gap left on previous column
+        Task.objects.filter(
+            column=pre_update.column,
+            order__gt=pre_update.order
+        ).update(order=F("order") - 1)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if not self.pk:
+                self._handle_new_task()
+                return super().save(*args, **kwargs)
+
+            pre_update = Task.objects.get(pk=self.pk)
+
+            if self.column == pre_update.column:  # updates on same column
+                self._handle_same_column_update(pre_update)
+                return super().save(*args, **kwargs)
+
+            else:  # on column change
+                self._handle_column_update(pre_update)
+                return super().save(*args, **kwargs)
+
+            return super().save(*args, **kwargs)
