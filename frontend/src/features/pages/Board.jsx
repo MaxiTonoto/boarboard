@@ -42,15 +42,17 @@ export function Board({ props, onBack }) {
         onDragEnd={ handleDragEnd }
       >
         <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-scroll">
-          {props.columns.map((col, index) => {
-            return (
-              <Column
-                key={col.id}
-                col={col}
-                onCreateTask={openCreateTaskForm}
-                onOpenTaskCreation={setCreatingTaskColId}
-              />
-            );
+          {props.columns
+            .sort((a, b) => a.order - b.order)
+            .map((col, index) => {
+              return (
+                <Column
+                  key={col.id}
+                  col={col}
+                  onCreateTask={openCreateTaskForm}
+                  onOpenTaskCreation={setCreatingTaskColId}
+                />
+              );
           })}
         </main>
       </DndContext>

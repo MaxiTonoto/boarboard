@@ -22,6 +22,14 @@ export const patchTaskColumn = (taskId, newColumn) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
+    {column: newColumn, order: 0}
+  );
+};
+
+export const patchTaskColumnOrder = (taskId, newColumn) => {
+    
+  return axios.patch(
+    TASK_URL + taskId + "/",
     {column: newColumn,}
   );
 };
