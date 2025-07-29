@@ -2,19 +2,23 @@ import VanillaTilt from "vanilla-tilt";
 import React, { useRef, useEffect, useState } from "react";
 import { deleteTask } from "../../api/taskApi.js";
 import { Bounce, toast } from "react-toastify";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+
 
 export function TaskCard({ task }) {
   const currentCard = useRef(null);
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
       fromColumn: task.column,
     },
   })
+
   const styles = {
     transform: CSS.Translate.toString(transform),
+    transition,
     zIndex: Boolean(transform) ? 100 : 1,
   }
   const [deletingCardStep, setDeletingCardStep] = useState(0);
