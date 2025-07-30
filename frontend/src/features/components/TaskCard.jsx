@@ -1,26 +1,11 @@
-import VanillaTilt from "vanilla-tilt";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { deleteTask } from "../../api/taskApi.js";
 import { Bounce, toast } from "react-toastify";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
 
 
 export function TaskCard({ task }) {
-  const currentCard = useRef(null);
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: task.id,
-    data: {
-      fromColumn: task.column,
-    },
-  })
 
-  const styles = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    zIndex: Boolean(transform) ? 100 : 1,
-  }
   const [deletingCardStep, setDeletingCardStep] = useState(0);
   /*
     deletingCardStep = 0   =>   delete button
@@ -45,17 +30,10 @@ export function TaskCard({ task }) {
     }
   }, [deletingCardStep]);
 
-  const assignRefs = (node) => {
-    currentCard.current = node;
-    setNodeRef(node);
-  };
-
   return (
     <>
       {deletingCardStep !== 2 && (
-        <article  
-          ref={assignRefs}
-          style={styles}
+        <article
           className="bg-[rgba(112,112,112,0.75)] rounded py-[0.5rem] border-2 border-[rgba(14,14,50,0.75)] relative"
         >
           <h2 
@@ -95,12 +73,14 @@ export function TaskCard({ task }) {
               </>
             )}
           </button>
-          <hr className="border-t-2 border-[rgba(14,14,50,0.5)] w-[98%] m-auto"></hr>
+
+          <hr 
+            className="border-t-2 border-[rgba(14,14,50,0.5)] w-[98%] m-auto">
+          </hr>
+
           <p className="px-2 pt-1">{task.description}</p>
           <button
             className="absolute bottom-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none z-10"
-            {...listeners}
-            {...attributes}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 380 380">
               <path
@@ -115,22 +95,3 @@ export function TaskCard({ task }) {
     </>
   );
 }
-
-
-
-let addVanillaTilt = `
-  useEffect(() => {
-    if (currentCard.current) {
-      VanillaTilt.init(currentCard.current, {
-        max: 10,
-        speed: 150,
-        glare: false,
-        reverse: true,
-      });
-    }
-    return () => {
-      currentCard.current?.vanillaTilt &&
-        currentCard.current.vanillaTilt.destroy();
-    };
-  }, []);
-`;
