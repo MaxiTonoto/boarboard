@@ -4,16 +4,20 @@ import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
 import React, { useState } from "react";
 import { patchTaskColumn } from "../../api/taskApi.js";
 
+import { DndContext } from '@dnd-kit/core';
+
 export function Board({ props, onBack }) {
   const [creatingTask, setCreatingTask] = useState(false);
-  const [creatingTaskColId, setCreatingTaskColId] = useState(
-    props.columns[0].id
-  );
-  const openCreateTaskForm = () => {
-    setCreatingTask(true);
-  };
-  const closeForm = () => {
-    setCreatingTask(false);
+  const [creatingTaskColId, setCreatingTaskColId] = useState(props.columns[0].id);
+  const openCreateTaskForm = () => setCreatingTask(true);
+  const closeForm = () => setCreatingTask(false);
+
+  const handleDragEnd = (e) => {
+    const { active, over } = e;
+    if (!active || !over) return;
+
+    console.log("Task id: " + active.id);
+    console.log("Column id: " + over.id);
   };
 
   return (
@@ -36,18 +40,22 @@ export function Board({ props, onBack }) {
         {props.title}
       </h1>
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-scroll">
-        {props.columns
-          .sort((a, b) => a.order - b.order)
-          .map((col, index) => {
-            return (
-              <Column
-                key={col.id}
-                col={col}
-                onCreateTask={openCreateTaskForm}
-                onOpenTaskCreation={setCreatingTaskColId}
-              />
-            );
-          })}
+        <DndContext
+          onDragEnd={ handleDragEnd }
+        >
+          {props.columns
+            .sort((a, b) => a.order - b.order)
+            .map((col, index) => {
+              return (
+                <Column
+                  key={col.id}
+                  col={col}
+                  onCreateTask={openCreateTaskForm}
+                  onOpenTaskCreation={setCreatingTaskColId}
+                />
+              );
+            })}
+          </DndContext>
       </main>
     </>
   );
