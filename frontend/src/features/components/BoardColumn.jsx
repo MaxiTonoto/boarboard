@@ -1,9 +1,13 @@
 import { TaskCard } from "./TaskCard.jsx";
 import { ColumnDropdown } from "./ColumnDropdown.jsx";
+import { useDroppable } from "@dnd-kit/core";
+
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
 export function Column({ col, onCreateTask, onOpenTaskCreation }) {
-
-  const sortedTasks = [...col.tasks].sort((a, b) => a.order - b.order);
+  const { isOver, setNodeRef } = useDroppable({
+    id: col.id,
+  });
 
   return (
     <div className="text-white h-[100%] min-w-[33%] rounded bg-[rgba(120,120,120,0.25)] flex flex-col">
@@ -17,12 +21,23 @@ export function Column({ col, onCreateTask, onOpenTaskCreation }) {
         />
       </div>
 
+      
       <div
         className="flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%]"
+        ref={setNodeRef}
       >
-        {sortedTasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
+        <SortableContext
+          items={col.tasks.map(task => task.id)}
+          strategy={ verticalListSortingStrategy }
+        >
+          {col.tasks
+            .sort((a, b) => a.order - b.order)
+            .map((task) => (
+              <TaskCard key={task.id} task={task} />
+            )
+          )}
+        </SortableContext>
+        
       </div>
     </div>
   );
