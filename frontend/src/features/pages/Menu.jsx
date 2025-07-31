@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getBoards } from "../../api/boardApi.js";
 import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
-import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
+import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 
 export function Menu({ onOpenBoard }) {
   const [userBoards, setUserBoards] = useState([]);
@@ -15,7 +15,6 @@ export function Menu({ onOpenBoard }) {
 
   return (
     <main className="w-[100%] h-[100%]">
-      <OpenConfigButton />
       <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
         Main Menu
       </h1>

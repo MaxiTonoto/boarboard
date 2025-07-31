@@ -1,7 +1,7 @@
 import { Column } from "../components/BoardColumn.jsx";
 import { TaskCard } from "../components/TaskCard.jsx";
 import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
-import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
+import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import React, { useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import { 
@@ -142,7 +142,20 @@ export function Board({ props, onBack }) {
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}
     >
-      <OpenConfigButton />
+      <BoardPageButtons
+        label="+▮"
+        top="0"
+        right="0"
+        bgColor={"rgba(255,120,120,0.5)"}
+        onClick={() => {console.log("OPEN FORM TO CREATE A COLUMN")}}
+      />
+      <BoardPageButtons
+        label="+📝"
+        top="0"
+        right="4.5rem"
+        bgColor={"rgba(120,255,120,0.5)"}
+        onClick={() => {setCreatingTask(true)}}
+      />
       {creatingTask && (
         <CreateTaskForm
           columnList={props.columns}
