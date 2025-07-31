@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy 
 } from "@dnd-kit/sortable";
 
-export function Column({ col, onCreateTask, onOpenTaskCreation }) {
+export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask }) {
 
   const { setNodeRef, isOver } = useDroppable({
     id: col.id,
@@ -39,17 +39,18 @@ export function Column({ col, onCreateTask, onOpenTaskCreation }) {
 
       
       <div
-        className={`flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%] transition ${isOver ? "bg-blue-200/10" : ""} `}
+        className={`flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%] transition overflow-y-auto ${isOver ? "bg-blue-300/10" : ""}`}
       >
         <SortableContext
           items={taskIds} strategy={verticalListSortingStrategy}
         >
-          {col.tasks
-            .sort((a, b) => a.order - b.order)
-            .map((task) => (
-              <TaskCard key={task.id} task={task} />
-            )
-          )}
+          {col.tasks.sort((a, b) => a.order - b.order).map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task} 
+              onDeleteTask={onDeleteTask}
+            />
+          ))}
         </SortableContext>
       </div>
     </div>

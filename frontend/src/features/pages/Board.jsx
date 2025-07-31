@@ -3,13 +3,15 @@ import { TaskCard } from "../components/TaskCard.jsx";
 import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
 import { OpenConfigButton } from "../components/OpenConfigButton.jsx";
 import React, { useState } from "react";
+import { Bounce, toast } from "react-toastify";
 import { 
-  patchTaskColumn, 
+  deleteTask,
+  patchTaskColumn,
   patchTaskOrder,
   patchTaskColumnAndOrder,
 } from "../../api/taskApi.js";
 
-import { DndContext, closestCorners, DragOverlay } from "@dnd-kit/core";
+import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
 export function Board({ props, onBack }) {
@@ -26,123 +28,120 @@ export function Board({ props, onBack }) {
   const closeForm = () => {
     setCreatingTask(false);
   };
-
-  const findColumn = (id) => boardColumns.find((col) => col.id === id);
+  const handleDeleteTask = (taskId) => {
+    deleteTask(taskId);
+    setBoardColumns((prev) => {
+      const newColumns = prev.map(col => {
+        return {
+          ...col,
+          tasks: col.tasks.filter(task => task.id !== taskId),
+        };
+      });
+      return newColumns;
+    });
+    toast.error(`Task deleted!`, {
+      position: "bottom-left",
+      autoClose: 3000,
+      closeOnClick: true,
+      pauseOnHover: false,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
 
   const handleDragStart = (e) => {
     const { active } = e;
-    if (active.data.current?.type === "Task") {
-      setActiveTask(active.data.current.task);
-    }
+    active.data.current?.type === "Task" && setActiveTask(active.data.current.task);
   };
-
+  
   const handleDragEnd = (e) => {
     setActiveTask(null);
     const { active, over } = e;
-    if (!active || !over) return;
+    if (!over) return;
 
     const activeId = active.id;
     const overId = over.id;
-
     if (activeId === overId) return;
-    const activeColumn = boardColumns.find((col) =>
-      col.tasks.some((task) => task.id === activeId)
-    );
 
-    // find the column where the task was dropped
-    let overColumn = boardColumns.find((col) => col.id === overId);
-    if (!overColumn) {
-      // if it was dropped over a task, look for its column
-      overColumn = boardColumns.find((col) =>
+    setBoardColumns(columns => {
+      // dragged task's original column
+      const activeColumn = columns.find((col) =>
+        col.tasks.some((task) => task.id === activeId)
+      );
+      // find the column where the task was dropped
+      const overColumn = boardColumns.find((col) => col.id === overId ||
+        // if it was dropped over a task, get it's column
         col.tasks.some((task) => task.id === overId)
       );
-    }
 
-    if (!activeColumn || !overColumn) return;
+      // guard clause in case a column wasn't found
+      if (!activeColumn || !overColumn) return columns;
 
-    // reordering tasks in same column
-    if (activeColumn.id === overColumn.id) {
-      setBoardColumns((prev) => {
-        const columnIndex = prev.findIndex((col) => col.id === activeColumn.id);
-        const taskIndex = activeColumn.tasks.findIndex(
-          (t) => t.id === activeId
+      // helper function
+      const assignOrder = (tasks) =>
+        tasks.map((task, index) => ({ ...task, order: index + 1 }));
+
+      // reorder tasks on same column
+      if (activeColumn.id === overColumn.id) {
+        // index of the dragged task before the drag
+        const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
+
+        // index of the task that got the dragged task dropped over
+        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+        (overIndex === -1) && (overIndex = overColumn.tasks.length-1)
+
+        // apply reordering of tasks on a copy
+        const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
+
+        // make API call to save change
+        patchTaskOrder(activeId, overIndex+1);
+
+        // return columns as they are except for the modified one
+        return columns.map((col) => col.id === activeColumn.id
+            ? { ...col, tasks: assignOrder(newTasks) }
+            : col
         );
-        const overTaskIndex = overColumn.tasks.findIndex(
-          (t) => t.id === overId
-        );
 
-        const newTasks = arrayMove(
-          activeColumn.tasks,
-          taskIndex,
-          overTaskIndex
-        );
+      // dragged task to another column
+      } else {
+        const movedTask = activeColumn.tasks.find((t) => t.id === activeId);
 
-        const newColumns = [...prev];
-        newColumns[columnIndex] = {
-          ...newColumns[columnIndex],
-          tasks: newTasks.map((task, index) => ({ ...task, order: index })),
-        };
+        // get dragged task's original column's tasks except for itself
+        const newActiveTasks = activeColumn.tasks.filter((t) => t.id !== activeId);
 
-        // MAKE API CALL TO UPDATE TASK ORDER IN SAME COLUMN
-        // console.log(activeId, newColumns[overTaskIndex].order);
-        patchTaskOrder(activeId, newColumns[overTaskIndex].order);
+        // get index of the task that got the dragged one dropped over
+        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+        // if dropped over the column (not a task), place at the end
+        (overIndex === -1) && (overIndex = overColumn.tasks.length);
 
-        return newColumns;
-      });
-    } else {
-      // move to different column
-      setBoardColumns((prev) => {
-        const activeTasks = [...activeColumn.tasks];
-        const overTasks = [...overColumn.tasks];
+        const newOverTasks = [...overColumn.tasks];
 
-        const movedTaskIndex = activeTasks.findIndex((t) => t.id === activeId);
-        const [movedTask] = activeTasks.splice(movedTaskIndex, 1);
+        // target column's task list with changes
+        newOverTasks.splice(overIndex, 0, { ...movedTask, columnId: overColumn.id });
 
-        // find what task of the new column the dragged one was dropped into
-        let overIndex = overTasks.findIndex((t) => t.id === overId);
-        if (overIndex === -1) {
-          // if it wasn't dropped into a task, place at end of new column
-          overIndex = overTasks.length;
-        }
-        overTasks.splice(overIndex, 0, {
-          ...movedTask,
-          columnId: overColumn.id,
-        });
+        // TODO: api call to move task and update orders in both columns
+        patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1);
 
-        // MAKE API CALL TO MOVE TASK TO DIFFERENT COLUMN AND UPDATE ORDER
-
-        // make new array with updated columns
-        return prev.map((col) => {
+        return columns.map((col) => {
           if (col.id === activeColumn.id) {
-            return {   // column that had the task that was dragged out
-              ...col,
-              tasks: activeTasks.map((task, index) => ({
-                ...task,
-                order: index,
-              })),
-            };
-          } else if (col.id === overColumn.id) {
-            return {   // column that welcomes incoming task :)
-              ...col,
-              tasks: overTasks.map((task, index) => ({
-                ...task,
-                order: index,
-              })),
-            };
-          } else {
-            // unaltered columns stay the same ewqjqjwqe
-            return col;
+            // update origin column's task list
+            return { ...col, tasks: assignOrder(newActiveTasks) };
           }
+          else if (col.id === overColumn.id) {
+            // update target column's task list
+            return { ...col, tasks: assignOrder(newOverTasks) };
+          } else return col;  // for all other columns
         });
-      });
-    }
+      }
+    });
   };
+
 
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      collisionDetection={closestCorners}
+      collisionDetection={closestCenter}
     >
       <OpenConfigButton />
       {creatingTask && (
@@ -169,6 +168,7 @@ export function Board({ props, onBack }) {
               col={col}
               onCreateTask={openCreateTaskForm}
               onOpenTaskCreation={setCreatingTaskColId}
+              onDeleteTask={handleDeleteTask}
             />
           );
         })}
@@ -179,3 +179,4 @@ export function Board({ props, onBack }) {
     </DndContext>
   );
 }
+
