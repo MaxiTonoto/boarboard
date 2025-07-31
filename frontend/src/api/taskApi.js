@@ -26,6 +26,17 @@ export const patchTaskColumn = (taskId, newColumn) => {
   );
 };
 
+export const patchTaskColumnAndOrder = (taskId, newColumn, newOrder) => {
+    
+  return axios.patch(
+    TASK_URL + taskId + "/",
+    {
+      column: newColumn,
+      order: newOrder,
+    }
+  );
+};
+
 export const deleteTask = (taskId) => {
     
   return axios.delete(TASK_URL + taskId + "/");

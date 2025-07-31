@@ -1,15 +1,12 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { deleteTask } from "../../api/taskApi.js";
 import { Bounce, toast } from "react-toastify";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 export function TaskCard({ task }) {
   const [deletingCardStep, setDeletingCardStep] = useState(0);
-  /*
-    deletingCardStep = 0   =>   delete button
-    deletingCardStep = 1   =>   ask for confirmation
-    deletingCardStep = 2   =>   delete forever :/
-  */
-
   useEffect(() => {
     if (deletingCardStep === 2) {
       const deleteCurrentTask = async () => {
@@ -27,11 +24,35 @@ export function TaskCard({ task }) {
     }
   }, [deletingCardStep]);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: "Task",
+      task,
+    },
+  });
+
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
     <>
       {deletingCardStep !== 2 && (
         <article  
           className="bg-[rgba(112,112,112,0.75)] rounded py-[0.5rem] border-2 border-[rgba(14,14,50,0.75)] relative"
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
         >
           <h2 
             className="text-lg px-2 pb-1 z-1 w-full text-left"           
@@ -74,6 +95,7 @@ export function TaskCard({ task }) {
           <p className="px-2 pt-1">{task.description}</p>
           <button
             className="absolute bottom-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none z-10"
+            {...listeners}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 380 380">
               <path
