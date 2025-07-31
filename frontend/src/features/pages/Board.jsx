@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import { 
   deleteTask,
-  patchTaskColumn,
   patchTaskOrder,
   patchTaskColumnAndOrder,
 } from "../../api/taskApi.js";

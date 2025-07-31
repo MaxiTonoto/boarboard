@@ -5,7 +5,7 @@ import axios from 'axios';
 const TASK_URL = API_URL + "/tasks/";
 
 
-export const postTask = (task) => {
+export const postTask = async (task) => {
     
   return axios.post(TASK_URL, task);
 };
@@ -18,7 +18,7 @@ export const patchTaskOrder = async (taskId, newOrder) => {
   );
 };
 
-export const patchTaskColumn = (taskId, newColumn) => {
+export const patchTaskColumn = async (taskId, newColumn) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
@@ -26,7 +26,7 @@ export const patchTaskColumn = (taskId, newColumn) => {
   );
 };
 
-export const patchTaskColumnAndOrder = (taskId, newColumn, newOrder) => {
+export const patchTaskColumnAndOrder = async (taskId, newColumn, newOrder) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
@@ -37,7 +37,7 @@ export const patchTaskColumnAndOrder = (taskId, newColumn, newOrder) => {
   );
 };
 
-export const deleteTask = (taskId) => {
+export const deleteTask = async (taskId) => {
     
   return axios.delete(TASK_URL + taskId + "/");
 };
