@@ -10,34 +10,39 @@ export const postTask = (task) => {
   return axios.post(TASK_URL, task);
 };
 
-export const patchTaskOrder = (taskId, newOrder) => {
-    
-  return axios.patch(
-    TASK_URL + taskId + "/",
+export const patchTaskOrder = async (taskId, newOrder) => {
+  
+  const response = await axios.patch(TASK_URL + taskId + "/",
     {order: newOrder,}
   );
+
+  return response;
 };
 
-export const patchTaskColumn = (taskId, newColumn) => {
-    
-  return axios.patch(
-    TASK_URL + taskId + "/",
+export const patchTaskColumn = async (taskId, newColumn) => {
+  
+  const response = await axios.patch(TASK_URL + taskId + "/",
     {column: newColumn,}
   );
+
+  return response;
 };
 
-export const patchTaskColumnAndOrder = (taskId, newColumn, newOrder) => {
-    
-  return axios.patch(
-    TASK_URL + taskId + "/",
+export const patchTaskColumnAndOrder = async (taskId, newColumn, newOrder) => {
+  
+  const response = await axios.patch(TASK_URL + taskId + "/",
     {
       column: newColumn,
       order: newOrder,
     }
   );
+
+  return response;
 };
 
-export const deleteTask = (taskId) => {
-    
-  return axios.delete(TASK_URL + taskId + "/");
+export const deleteTask = async (taskId) => {
+  
+  const response = await axios.delete(TASK_URL + taskId + "/");
+
+  return response;
 };

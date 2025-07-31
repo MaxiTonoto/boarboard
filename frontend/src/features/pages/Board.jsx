@@ -84,6 +84,8 @@ export function Board({ props, onBack }) {
         };
 
         // MAKE API CALL TO UPDATE TASK ORDER IN SAME COLUMN
+        // console.log(activeId, newColumns[overTaskIndex].order);
+        patchTaskOrder(activeId, newColumns[overTaskIndex].order);
 
         return newColumns;
       });
