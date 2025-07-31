@@ -23,6 +23,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
 
+
+    # FOR DEVELOPMENT ONLY
+    path("", api_root, name="api-root"),
+
+
     path("api/", api_root, name="api-root"),
     path("api/tasks/", include("task.api.urls")),
     path("api/columns/", include("column.api.urls")),

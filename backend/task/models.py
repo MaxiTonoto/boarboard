@@ -15,14 +15,17 @@ class Task(models.Model):
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
 
-    def __str__(self, *args, **kwargs):
+    def __str__(self):
         return f"{self.order} - {self.title}"
 
     def delete(self, *args, **kwargs):
-        column = self.column
-        order = self.order
-        super().delete(*args, **kwargs)
-        Task.objects.filter(column=column, order__gt=order).update(order=F("order") - 1)
+        with transaction.atomic():
+            column = self.column
+            order = self.order
+            super().delete(*args, **kwargs)
+            Task.objects.filter(
+                column=column, order__gt=order
+            ).update(order=F("order") - 1)
 
     # helper method
     def get_max_order(self, column, exc_pk=None):
@@ -108,7 +111,7 @@ class Task(models.Model):
                 self._handle_new_task()
                 return super().save(*args, **kwargs)
 
-            pre_update = Task.objects.get(pk=self.pk)
+            pre_update = Task.objects.select_for_update().get(pk=self.pk)
 
             if self.column == pre_update.column:  # updates on same column
                 self._handle_same_column_update(pre_update)
