@@ -7,3 +7,8 @@ export const postColumn = async (column) => {
 
   return axios.post(COLUMN_URL, column);
 };
+
+export const deleteColumn = async (columnId) => {
+
+  return axios.delete(COLUMN_URL + columnId + "/");
+};
