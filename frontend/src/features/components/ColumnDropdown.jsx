@@ -16,10 +16,11 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
       <p className="translate-y-[-15%]">⌄</p>
       {isDropdownOpen && (
         <ul
-          className="absolute bg-[rgba(0,0,0,0.75)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%] w-[9rem]"
+          className="absolute bg-[rgba(0,0,0,0.85)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%] w-[9rem]"
           onMouseLeave={toggleDropdown}
         >
           <li className="hover:bg-[rgba(100,100,100,0.5)] transition px-[0.5rem] rounded cursor-pointer"
+          title="Create a new task"
           onClick={ () => {
             onCreateTask();
             onOpenTaskCreation(props.id);
@@ -27,7 +28,9 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
             ➕ Create
           </li>
           <hr className="my-[0.5rem]"></hr>
-          <li className="hover:bg-[rgba(100,100,100,0.5)] transition px-[0.5rem] rounded cursor-pointer">
+          <li className="hover:bg-[rgba(100,100,100,0.5)] transition px-[0.5rem] rounded cursor-pointer"
+          title="Delete this column"
+          >
             🗑️ Delete
           </li>
         </ul>

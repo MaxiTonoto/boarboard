@@ -1,6 +1,7 @@
 import { Column } from "../components/BoardColumn.jsx";
 import { TaskCard } from "../components/TaskCard.jsx";
 import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
+import { CreateColumnForm } from "../components/CreateColumnForm.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import React, { useState } from "react";
 import { Bounce, toast } from "react-toastify";
@@ -16,16 +17,14 @@ import { arrayMove } from "@dnd-kit/sortable";
 export function Board({ props, onBack }) {
   const [boardColumns, setBoardColumns] = useState(props.columns);
   const [activeTask, setActiveTask] = useState(null);
-
+  const [creatingColumn, setCreatingColumn] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
   const [creatingTaskColId, setCreatingTaskColId] = useState(
     props.columns[0].id
   );
-  const openCreateTaskForm = () => {
-    setCreatingTask(true);
-  };
   const closeForm = () => {
     setCreatingTask(false);
+    setCreatingColumn(false);
   };
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId);
@@ -143,16 +142,18 @@ export function Board({ props, onBack }) {
       collisionDetection={closestCenter}
     >
       <BoardPageButtons
+        title="Create a new column"
         label="+▮"
         top="0"
-        right="0"
+        right="4.5rem"
         bgColor={"rgba(255,120,120,0.5)"}
-        onClick={() => {console.log("OPEN FORM TO CREATE A COLUMN")}}
+        onClick={() => {setCreatingColumn(true)}}
       />
       <BoardPageButtons
+        title="Create a new task"
         label="+📝"
         top="0"
-        right="4.5rem"
+        right="0"
         bgColor={"rgba(120,255,120,0.5)"}
         onClick={() => {setCreatingTask(true)}}
       />
@@ -161,6 +162,12 @@ export function Board({ props, onBack }) {
           columnList={props.columns}
           onCloseForm={closeForm}
           defaultColumnId={creatingTaskColId}
+        />
+      )}
+      {creatingColumn && (
+        <CreateColumnForm
+          board={props}
+          onCloseForm={closeForm}
         />
       )}
       <button
@@ -173,16 +180,18 @@ export function Board({ props, onBack }) {
         {props.title}
       </h1>
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-scroll">
-        {boardColumns.map((col) => {
-          return (
-            <Column
-              key={col.id}
-              col={col}
-              onCreateTask={openCreateTaskForm}
-              onOpenTaskCreation={setCreatingTaskColId}
-              onDeleteTask={handleDeleteTask}
-            />
-          );
+        {boardColumns
+          .sort((a, b) => (a.order - b.order))
+          .map((col) => {
+            return (
+              <Column
+                key={col.id}
+                col={col}
+                onCreateTask={() => setCreatingTask(true)}
+                onOpenTaskCreation={setCreatingTaskColId}
+                onDeleteTask={handleDeleteTask}
+              />
+            );
         })}
       </main>
       <DragOverlay>

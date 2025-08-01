@@ -117,7 +117,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
         </div>
         <div className="flex items-center">
           <select
-            className="border-2 border-[rgba(212,212,212,0.5)] bg-[rgb(12,12,12)] rounded-md w-[75%] text-center text-2xl text-white"
+            className="border-2 border-[rgba(212,212,212,0.5)] bg-[rgb(12,12,12)] rounded-md w-[75%] text-center text-2xl text-white p-4"
             required
             id="column-select"
             name="column-select"

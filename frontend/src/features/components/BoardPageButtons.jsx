@@ -1,7 +1,7 @@
 
 
 export function BoardPageButtons({
-  top, right, left, bottom, bgColor, label, onClick 
+  title, top, right, left, bottom, bgColor, label, onClick 
 }) {
 
   const style = {
@@ -18,6 +18,7 @@ export function BoardPageButtons({
 
   return (
     <button 
+      title={title || undefined}
       className={`transition text-white p-2 px-3 rounded absolute m-4`}
       style={style}
       onClick={ handleClick }

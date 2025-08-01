@@ -45,7 +45,7 @@ export function TaskCard({ task, onDeleteTask }) {
       </h2>
       <button className="absolute top-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-pointer select-none">
         {!confirmingDelete && (
-          <span onClick={() => setConfirmingDelete(true)}>
+          <span title="Delete task?" onClick={() => setConfirmingDelete(true)}>
             🗑️
           </span>
         )}
@@ -71,6 +71,7 @@ export function TaskCard({ task, onDeleteTask }) {
       <p className="px-2 pt-1">{task.description}</p>
       <button
         className="absolute bottom-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none"
+        title="Hold & drag to move task"
         {...listeners}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 380 380">
