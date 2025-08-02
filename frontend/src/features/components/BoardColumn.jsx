@@ -24,7 +24,7 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask }) 
 
   return (
     <div
-      className="text-white h-[100%] min-w-[33%] rounded bg-[rgba(120,120,120,0.25)] flex flex-col"
+      className="text-white h-[100%] min-w-[320px] w-1/3 rounded bg-[rgba(120,120,120,0.25)] flex flex-col"
       ref={setNodeRef}
     >
       <div className="text-center w-[100%] bg-[rgba(255,255,255,0.05)] py-[0.5rem] rounded text-xl shadow-xl relative z-10 sticky top-0">

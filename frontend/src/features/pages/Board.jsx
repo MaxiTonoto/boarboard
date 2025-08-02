@@ -20,7 +20,7 @@ export function Board({ props, onBack }) {
   const [creatingColumn, setCreatingColumn] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
   const [creatingTaskColId, setCreatingTaskColId] = useState(
-    props.columns[0].id
+    () => (props.columns?.[0]?.id ?? null)
   );
   const closeForm = () => {
     setCreatingTask(false);
@@ -145,7 +145,7 @@ export function Board({ props, onBack }) {
         title="Create a new column"
         label="+▮"
         top="0"
-        right="4.5rem"
+        right="5rem"
         bgColor={"rgba(255,120,120,0.5)"}
         onClick={() => {setCreatingColumn(true)}}
       />
@@ -179,9 +179,9 @@ export function Board({ props, onBack }) {
       <h1 className="text-4xl text-white text-center w-[100%] py-[0.5rem]">
         {props.title}
       </h1>
-      <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-scroll">
-        {boardColumns
-          .sort((a, b) => (a.order - b.order))
+      <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
+        {boardColumns.length > 0 ? 
+          boardColumns.sort((a, b) => (a.order - b.order))
           .map((col) => {
             return (
               <Column
@@ -192,7 +192,20 @@ export function Board({ props, onBack }) {
                 onDeleteTask={handleDeleteTask}
               />
             );
-        })}
+          }) : 
+          <p className="text-white text-2xl width-full absolute top-1/2 left-1/2 -translate-1/2 text-center">
+            Nothing here yet.<br/>
+            Use the &nbsp;
+            <span
+              title="Create a new column"
+              className="bg-[rgba(255,120,120,0.5)] p-2 rounded cursor-pointer hover:brightness-95 hover:shadow-sm"
+              onClick={() => {setCreatingColumn(true)}}
+            >
+              +▮
+            </span>
+            &nbsp;button to create your first column!
+          </p>
+        }
       </main>
       <DragOverlay>
         {activeTask ? <TaskCard task={activeTask} /> : null}

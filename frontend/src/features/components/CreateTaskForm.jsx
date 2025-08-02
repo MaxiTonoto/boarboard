@@ -126,7 +126,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
           >
             {columnList.map((item, index) => (
               <option key={index + 1} value={item.id}>
-                {item.order}. {item.title}
+                {index+1}. {item.title}
               </option>
             ))}
           </select>

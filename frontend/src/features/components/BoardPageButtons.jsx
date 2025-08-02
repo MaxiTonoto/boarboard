@@ -12,14 +12,12 @@ export function BoardPageButtons({
     backgroundColor: bgColor || "rgba(112,112,112,0.75)",
   };
 
-  const handleClick = (e) => {
-    onClick();
-  };
+  const handleClick = () => onClick();
 
   return (
     <button 
       title={title || undefined}
-      className={`transition text-white p-2 px-3 rounded absolute m-4`}
+      className={`transition text-white p-2 px-3 rounded absolute m-4 min-w-[4rem] hover:brightness-95 hover:shadow-sm cursor-pointer select-none`}
       style={style}
       onClick={ handleClick }
     >

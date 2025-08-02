@@ -50,7 +50,7 @@ export function CreateColumnForm({ board, onCloseForm }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute top-[50%] left-[50%] -translate-1/2 w-[90%] h-[85%] shadow-xl z-1000 text-white p-[1rem] rounded-md border-2 border-[rgba(12,12,12,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,1)_33%,rgba(24,24,24,0.75)_50%,rgba(12,12,12,0.95)_66%)]"
+      className="absolute top-[50%] left-[50%] -translate-1/2 w-[90%] h-[85%] shadow-xl z-1000 text-white p-[1rem] rounded-md border-2 border-[rgba(12,12,12,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,1)_33%,rgba(24,24,24,0.85)_50%,rgba(12,12,12,0.95)_66%)]"
     >
       <p
         onClick={onCloseForm}

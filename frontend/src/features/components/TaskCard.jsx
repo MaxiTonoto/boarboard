@@ -68,7 +68,7 @@ export function TaskCard({ task, onDeleteTask }) {
         )}
       </button>
       <hr className="border-t-2 border-[rgba(14,14,50,0.5)] w-[98%] m-auto"></hr>
-      <p className="px-2 pt-1">{task.description}</p>
+      <p className="px-2 pt-1 break-all">{task.description}</p>
       <button
         className="absolute bottom-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none"
         title="Hold & drag to move task"
