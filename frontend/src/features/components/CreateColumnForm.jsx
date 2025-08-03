@@ -60,7 +60,7 @@ export function CreateColumnForm({ board, onCloseForm }) {
         &rArr;
       </p>
       <h2 className="text-center text-5xl py-[0.5rem] text-white w-[100%] mb-[4rem]">
-        Create column
+        Create new column
       </h2>
 
       <div className="grid grid-cols-[33%_66%] grid-rows-[1fr_50%_1fr] w-[100%] h-[75%] gap-[1rem]">

@@ -10,8 +10,12 @@ export const getBoards = () => {
     return axios.get(BOARD_URL);
 };
 
+export const postBoard = (board) => {
 
-export const createBoard = (data) => {
+    return axios.post(BOARD_URL, board);
+}
 
-    return axios.post(BOARD_URL, data);
+export const getBoard = (boardId) => {
+
+    return axios.get(BOARD_URL + boardId + "/");
 }

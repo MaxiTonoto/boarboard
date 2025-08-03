@@ -100,7 +100,7 @@ export function TaskCard({ task, onDeleteTask }) {
       <div className="w-3/5 mx-auto">
         { descriptionIsCutOff &&
           <button
-            className="text-center w-full bg-[rgba(12,12,12,0.45)] rounded hover:bg-[rgba(12,12,12,0.5)] transition text-white my-1 py-1"
+            className="text-center w-full bg-[rgba(12,12,12,0.45)] rounded hover:bg-[rgba(12,12,12,0.5)] transition text-white py-[0.1rem] my-[0.1rem]"
             onClick={ () => setOpenDescription(prev => !prev) }
           >
             { openDescription ? "Show less ↑" : "Show full ↓" } 
