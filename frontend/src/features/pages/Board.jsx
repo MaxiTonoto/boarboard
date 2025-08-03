@@ -195,15 +195,24 @@ export function Board({ props, onBack }) {
           }) : 
           <p className="text-white text-2xl width-full absolute top-1/2 left-1/2 -translate-1/2 text-center">
             Nothing here yet.<br/>
-            Use the &nbsp;
+            Use the&nbsp;
             <span
               title="Create a new column"
-              className="bg-[rgba(255,120,120,0.5)] p-2 rounded cursor-pointer hover:brightness-95 hover:shadow-sm"
+              className="bg-[rgba(255,120,120,0.5)] p-2 rounded cursor-pointer hover:brightness-95 hover:shadow-sm select-none"
               onClick={() => {setCreatingColumn(true)}}
             >
               +▮
             </span>
             &nbsp;button to create your first column!
+            <br/><br/>
+            Then use the&nbsp;
+            <span
+              title="Create a new task (but not with this button, there's no columns yet. Use the one on the top-right corner instead)"
+              className="bg-[rgba(120,255,120,0.5)] p-2 rounded cursor-pointer hover:brightness-95 hover:shadow-sm select-none"
+            >
+              +📝
+            </span>
+            &nbsp;button to add tasks!
           </p>
         }
       </main>

@@ -17,7 +17,7 @@ export function BoardPageButtons({
   return (
     <button 
       title={title || undefined}
-      className={`transition text-white p-2 px-3 rounded absolute m-4 min-w-[4rem] hover:brightness-95 hover:shadow-sm cursor-pointer select-none`}
+      className={`transition text-white p-2 px-3 rounded absolute m-4 min-w-[4rem] hover:brightness-95 shadow-sm hover:shadow-md cursor-pointer select-none`}
       style={style}
       onClick={ handleClick }
     >

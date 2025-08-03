@@ -1,10 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 export function TaskCard({ task, onDeleteTask }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [openDescription, setOpenDescription] = useState(false);
+
+  const descriptionContainerRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const [descriptionIsCutOff, setDescriptionIsCutOff] = useState(false);
+
+  useEffect(() => {
+    if (descriptionContainerRef.current && descriptionRef.current) {
+      setDescriptionIsCutOff(
+        descriptionContainerRef.current.clientHeight <
+        descriptionRef.current.scrollHeight
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log(descriptionIsCutOff);
+  }, [descriptionIsCutOff]);
 
   const handleDelete = () => {
     onDeleteTask(task.id);
@@ -24,7 +42,7 @@ export function TaskCard({ task, onDeleteTask }) {
       task,
     },
   });
-  
+
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
@@ -68,7 +86,26 @@ export function TaskCard({ task, onDeleteTask }) {
         )}
       </button>
       <hr className="border-t-2 border-[rgba(14,14,50,0.5)] w-[98%] m-auto"></hr>
-      <p className="px-2 pt-1 break-all">{task.description}</p>
+      <div
+        ref={descriptionContainerRef}
+        className={`overflow-hidden relative
+          ${openDescription ? "max-h-full" : "max-h-[5rem] cursor-pointer"}
+        `}
+        
+      >
+        <p ref={descriptionRef} className="px-2 pt-1 break-all">
+          {task.description}
+        </p>
+      </div>
+      <div className="w-3/5 mx-auto">
+        { descriptionIsCutOff &&
+          <button
+            className="text-center w-full bg-[rgba(12,12,12,0.45)] rounded hover:bg-[rgba(12,12,12,0.5)] transition text-white my-1 py-1"
+            onClick={ () => setOpenDescription(prev => !prev) }
+          >
+            { openDescription ? "Show less ↑" : "Show full ↓" } 
+          </button> }
+      </div>
       <button
         className="absolute bottom-0 right-0 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none"
         title="Hold & drag to move task"

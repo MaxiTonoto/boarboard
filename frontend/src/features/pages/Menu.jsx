@@ -15,6 +15,13 @@ export function Menu({ onOpenBoard }) {
 
   return (
     <main className="w-[100%] h-[100%]">
+      <BoardPageButtons
+        title="Create a new board"
+        label="New board"
+        top="0"
+        right="0"
+        bgColor="rgb(102,102,240)"
+      />
       <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
         Main Menu
       </h1>
