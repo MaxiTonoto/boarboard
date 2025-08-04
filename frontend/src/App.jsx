@@ -27,7 +27,8 @@ function App() {
           onOpenBoard={ (board) => { 
             gotoBoardView();
             setOpenBoard(board);
-          }} 
+          }}
+          onGoToAuth={ () => setCurrentScreen("auth") }
         /> 
       }
 

@@ -4,7 +4,7 @@ import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { CreateBoardForm } from "../components/CreateBoardForm.jsx";
 
-export function Menu({ onOpenBoard }) {
+export function Menu({ onOpenBoard, onGoToAuth }) {
   const [userBoards, setUserBoards] = useState([]);
   const [creatingBoard, setCreatingBoard] = useState(false); 
 
@@ -24,17 +24,25 @@ export function Menu({ onOpenBoard }) {
       }
       <main className="w-[100%] h-[100%]">
         <BoardPageButtons
-          title="Create a new board"
-          label="New board"
+          title="Register or log in"
+          label="👤"
           top="0"
-          right="0"
-          bgColor="rgb(102,102,240)"
-          onClick={() => setCreatingBoard(true)}
+          left="0"
+          bgColor="rgb(72,200,72)"
+          onClick={() => onGoToAuth()}
         />
         <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
           Main Menu
         </h1>
         <section className="w-[98%] h-[88%] m-auto p-[0.5rem] bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_8px_#000]">
+          <BoardPageButtons
+            title="Create a new board"
+            label="New board"
+            top="0"
+            right="0"
+            bgColor="rgb(102,102,240)"
+            onClick={() => setCreatingBoard(true)}
+          />
           <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem]">
             Your boards
           </h2>
