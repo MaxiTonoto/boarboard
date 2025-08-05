@@ -1,6 +1,7 @@
 import { Bounce, toast } from "react-toastify";
 import React, { useState, useEffect } from "react";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
+import { postUser } from "../../api/authApi.js";
 
 export function RegisterForm({ swapAuthAction }) {
  
@@ -39,8 +40,43 @@ export function RegisterForm({ swapAuthAction }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (valid) {
-      // TODO: SEND DATA TO API ENDPOINT
-      // TODO: CREATE TOAST NOTIF
+      const createCurrentUser = async () => {
+        const toastOptions = {
+          position: "bottom-left",
+          autoClose: 4000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: "dark",
+          transition: Bounce,
+        };
+        try {
+          const response = await postUser({ username: username, password: password1 })
+
+          toast.success("Register success! Moving to login...", toastOptions);
+          setUsername("");
+          setPassword1("");
+          setPassword2("");
+          swapAuthAction();
+        } catch (error) {
+
+          if (error.response && error.response.data) {
+            if (error.response.data.username) toast.error(
+              `Username: ${error.response.data.username}`, toastOptions
+            );
+            if (error.response.data.password) toast.error(
+              `Password: ${error.response.data.password}`, toastOptions
+            );
+            if (error.response.data.error) toast.error(
+              `Error: ${error.response.data.error}`, toastOptions
+            );
+
+          } else {
+            toast.error(`Register error: ${error.message}`, toastOptions);
+          }
+        }
+      }
+      createCurrentUser();
+
     } else {
       toast.error("Password conditions are not met!", {
         position: "top-right",
@@ -126,8 +162,8 @@ export function RegisterForm({ swapAuthAction }) {
             onChange={ e => setPassword2(e.target.value) }
           />
         </div>
-
-        <ul className="list-disc">
+      </div>
+      <ul className="list-disc w-3/4 m-auto">
           <li style={{ color : `${ validations.minChars ? "green" : "rgb(225,52,52)"}` }}>
             At least 8 characters
           </li>
@@ -140,9 +176,7 @@ export function RegisterForm({ swapAuthAction }) {
           <li style={{ color : `${ validations.match ? "green" : "rgb(225,52,52)"}` }}>
             Passwords should match
           </li>
-        </ul>
-
-      </div>
+      </ul>
       <BoardPageButtons
         role="submit"
         label="Register"

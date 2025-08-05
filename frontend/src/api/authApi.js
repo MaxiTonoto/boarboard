@@ -4,11 +4,14 @@ import { API_URL } from './setUpApi.js';
 
 const AUTH_URL = API_URL + "/auth/";
 
-export const postUser = (data) => {
-
-    return axios.post(
-        AUTH_URL + "create/",
-        data,
-        { withCredentials: true, }
-    );
+export const postUser = async (data) => {
+  
+  return axios.post(
+      AUTH_URL + "register/",
+      data,
+      { 
+          headers: {'Content-Type' : 'application/json'},
+          withCredentials: true, 
+      }
+  );
 };
