@@ -1,4 +1,5 @@
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
@@ -10,59 +11,56 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
-from accounts.api.serializers import CreateUserSerializer, LoginSerializer
+from accounts.api.serializers import (
+    RegisterSerializer,
+    LoginSerializer,
+    RefreshTokenSerializer
+)
+
 
 # helper function
 def make_token_response_for_user(
-        user, status_code=status.HTTP_200_OK, message="Success"
-    ):
+    user, status_code=status.HTTP_200_OK, message="Success"
+):
     refresh = RefreshToken.for_user(user)
-    response = Response(
-        {"message": message},
-        status=status_code
-    )
+    response = Response({"message": message}, status=status_code)
 
     response.set_cookie(
-        key='refresh_token',
+        key="refresh_token",
         value=str(refresh),
         httponly=True,
         secure=True,
-        samesite='Strict',
-        max_age=604800   # 7 days
+        samesite="Strict",
+        max_age=604800,  # 7 days
     )
 
     # add an access token for immediate use
-    response.data['access_token'] = str(refresh.access_token)
+    response.data["access_token"] = str(refresh.access_token)
     return response
 
 
-class CreateUserView(APIView):
+class RegisterView(APIView):
+    serializer_class = RegisterSerializer
     parser_classes = [JSONParser]
-    serializer_class = CreateUserSerializer
 
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
+        serializer = self.serializer_class(data=request.data)
 
-        if (not username) or (not password):
+        if not serializer.is_valid():
             return Response(
-                {'error': 'Username and passowrd are required'},
+                serializer.errors, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        username = serializer.validated_data['username']
+        password = serializer.validated_data['password']
+
         if User.objects.filter(username=username).exists():
             return Response(
-                {'error': 'Username already taken.'},
+                {"error": "Username already taken"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        try:
-            validate_password(password)
-        except ValidationError as e:
-            return Response(
-                {'error': e.messages},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
         user = User.objects.create_user(
             username=username, 
             password=password
@@ -70,47 +68,54 @@ class CreateUserView(APIView):
         return make_token_response_for_user(
             user,
             status_code=status.HTTP_201_CREATED,
-            message="User created successfully"
+            message="User created successfully",
         )
 
 
-class GetCookieTokenView(APIView):
+class LoginView(APIView):
     serializer_class = LoginSerializer
+
+    def post(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Already authenticated"},
+                status=status.HTTP_200_OK,
+            )
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+
+        return make_token_response_for_user(
+            user, 
+            status_code=status.HTTP_200_OK, 
+            message="Login success"
+        )
+
+
+class RefreshTokenView(APIView):
+    serializer_class = RefreshTokenSerializer
     
     def post(self, request):
-        user = None
+        serializer = RefreshTokenSerializer(data=request.data)
 
-        if request.user.is_authenticated:
-            user = request.user
-
-            # do not make a new session token if there's an active one
-            if 'refresh_token' in request.COOKIES:
+        if serializer.is_valid():
+            recieved_token = serializer.validated_data['refresh_token']
+            try:
+                refresh = RefreshToken(recieved_token)
+                session_token = str(refresh.access_token)
                 return Response(
-                    {'message': 'Already authenticated with active session'},
+                    {'session_token': session_token},
                     status=status.HTTP_200_OK
                 )
-
-            # if the code gets here, make a new one
-            return make_token_response_for_user(
-                user,
-                status=status.HTTP_200_OK,
-                message="Session token regenerated"
-            )
-
-        else:
-            user = authenticate(
-                username = request.data.get("username"), 
-                password = request.data.get("password")
-            )
-            
-            if user:
-                return make_token_response_for_user(
-                    user,
-                    status_code = status.HTTP_200_OK,
-                    message="Login success"
+            except (TokenError, InvalidToken):
+                return Response(
+                    {'error': 'Invalid refresh token'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
-            
-            return Response(
-                {'error': 'Invalid credentials'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

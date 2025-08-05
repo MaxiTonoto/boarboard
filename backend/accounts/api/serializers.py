@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 
-class CreateUserSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
+class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=50)
     password = serializers.CharField(write_only=True)
 
     def validate_password(self, value):
@@ -15,7 +15,7 @@ class CreateUserSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
+    username = serializers.CharField(max_length=50)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
@@ -29,3 +29,6 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
