@@ -1,11 +1,38 @@
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
+import { loginUser } from "../../api/authApi.js";
+import { AuthContext } from "../../AuthContext.jsx";
 
 export function LoginForm({ swapAuthAction }) {
+  const { setAccessToken } = useContext(AuthContext);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await loginUser({username: username, password: password});
+
+      toast.success(`Successfully logged in user ${username}!`, toastOptions);
+
+      setUsername("");
+      setPassword("");
+      setAccessToken(response.data.access_token);
+
+    } catch (error) {
+
+      const data = error?.response?.data;
+
+      if (data) {
+        if (data.username) toast.error(`Username: ${data.username[0]}`, toastOptions);
+        if (data.password) toast.error(`Password: ${data.password[0]}`, toastOptions);
+        if (data.non_field_errors) toast.error(`Error: ${data.non_field_errors[0]}`, toastOptions);
+        if (data.error) toast.error(`Error: ${data.error}`, toastOptions);
+      } else {
+        toast.error(`Login error: ${error?.message || "An unexpected error occurred."}`, toastOptions);
+      }
+    }
   };
 
   return (
@@ -34,7 +61,7 @@ export function LoginForm({ swapAuthAction }) {
             </label>
 
             <input
-              className="border-2 border-[rgba(212,212,212,0.5)] rounded-md w-full text-2xl text-center py-1 mb-6"
+              className="border-2 border-[rgba(212,212,212,0.5)] rounded-md w-full text-2xl text-left p-2 mb-6"
               placeholder=""
               maxLength={50}
               minLength={1}
@@ -42,6 +69,8 @@ export function LoginForm({ swapAuthAction }) {
               required
               id="username-input"
               name="username-input"
+              value={username}
+              onChange={ e => setUsername(e.target.value) }
             />
           </div>
 
@@ -54,13 +83,14 @@ export function LoginForm({ swapAuthAction }) {
             </label>
 
             <input
-              className="border-2 border-[rgba(212,212,212,0.5)] rounded-md w-full text-2xl text-center py-1 mb-4"
+              className="border-2 border-[rgba(212,212,212,0.5)] rounded-md w-full text-2xl text-left p-2 mb-4"
               placeholder=""
-              minLength={8}
               type="password"
               required
               id="password-input"
               name="password-input"
+              value={password}
+              onChange={ e => setPassword(e.target.value) }
             />
           </div>
         </div>
@@ -70,7 +100,7 @@ export function LoginForm({ swapAuthAction }) {
           title="Try login with entered data"
           bottom="0"
           right="0"
-          bgColor="rgb(102,225,102)"
+          bgColor="rgb(72,152,72)"
         />
         <BoardPageButtons
           label="Register instead"
@@ -83,3 +113,11 @@ export function LoginForm({ swapAuthAction }) {
     </form>
   );
 }
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 4000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
+};

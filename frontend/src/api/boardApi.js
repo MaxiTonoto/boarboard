@@ -1,18 +1,37 @@
 import { API_URL } from './setUpApi.js';
 import axios from 'axios';
 
-
 const BOARD_URL = API_URL + "/boards/";
-
+const USER_BOARDS_URL = BOARD_URL + "user-boards/";
 
 export const getBoards = () => {
     
-    return axios.get(BOARD_URL);
+    return axios.get(BOARD_URL + "boards/");
 };
 
-export const postBoard = (board) => {
+export const getUserBoards = (accessToken) => {
+    
+    return axios.get(USER_BOARDS_URL, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        }
+    });
+};
 
-    return axios.post(BOARD_URL, board);
+export const postBoard = async (accessToken, board) => {
+    try {
+        const response = await axios.post(
+            BOARD_URL + "boards/",
+            board,
+            {headers: {
+              Authorization: `Bearer ${accessToken}`,
+            }}
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+
 }
 
 export const getBoard = (boardId) => {

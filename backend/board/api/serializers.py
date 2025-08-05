@@ -3,7 +3,7 @@ from board.models import Board
 from column.api.serializers import ColumnSerializer
 
 class BoardSerializer(serializers.ModelSerializer):
-    columns = ColumnSerializer(many=True, required=True)
+    columns = ColumnSerializer(many=True, read_only=True)
 
     class Meta:
         model = Board
@@ -12,3 +12,5 @@ class BoardSerializer(serializers.ModelSerializer):
             "last_modified", "owner_id",
             "columns",
         ]
+
+        read_only_fields = ("owner_id", "created_at", "last_modified")

@@ -1,22 +1,25 @@
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { postBoard } from "../../api/boardApi.js";
+import { AuthContext } from "../../AuthContext.jsx";
 
 
 export function CreateBoardForm({ onCloseForm }) {
   const [title, setTitle] = useState("");
   const [columnsPreset, setColumnsPreset] = useState(0);
-
+  const { accessToken } = useContext(AuthContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const postCurrentBoard = async () => {
       try {
-        let response = await postBoard({
-          title: title,
-          columnsPreset: columnsPreset,
-        });
+        let response = await postBoard(
+          accessToken,
+          {
+            title: title,
+            columnsPreset: columnsPreset,
+          });
         if (response.status === 201) {
           toast.success(`Created board ${response.data.title}`, {
             position: "bottom-left",
@@ -30,6 +33,7 @@ export function CreateBoardForm({ onCloseForm }) {
           onCloseForm();
         }
       } catch (error) {
+        console.log(error)
         toast.error(`Error creating board: ${error.message}`, {
           position: "bottom-left",
           autoClose: 3000,

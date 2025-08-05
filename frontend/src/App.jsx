@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 import { Menu } from './features/pages/Menu.jsx';
 import { Auth } from './features/pages/Auth.jsx';
 import { Board } from './features/pages/Board.jsx';
 
+import { AuthContext } from './AuthContext.jsx';
+
 function App() {
-  
+  const [accessToken, setAccessToken] = useState(null);
+
   const [currentScreen, setCurrentScreen]  = useState("menu");
   const [openBoard, setOpenBoard] = useState(null);
   const gotoMainMenu = () => {setCurrentScreen("menu");};
   const gotoBoardView = () => {setCurrentScreen("board");};
 
+
   return (
-    <> 
+    <AuthContext.Provider value={{ accessToken, setAccessToken }}> 
       <ToastContainer/>
       
       { currentScreen === "auth" && 
@@ -38,7 +42,7 @@ function App() {
           props={ openBoard }
         /> 
       }
-    </>
+    </AuthContext.Provider>
   );
 }
 

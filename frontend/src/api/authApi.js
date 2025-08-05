@@ -15,3 +15,15 @@ export const postUser = async (data) => {
       }
   );
 };
+
+export const loginUser = async (data) => {
+  
+  return axios.post(
+      AUTH_URL + "login/",
+      data,
+      { 
+          headers: {'Content-Type' : 'application/json'},
+          withCredentials: true, 
+      }
+  );
+};

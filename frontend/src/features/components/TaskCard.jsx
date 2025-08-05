@@ -20,10 +20,6 @@ export function TaskCard({ task, onDeleteTask }) {
     }
   }, []);
 
-  useEffect(() => {
-    console.log(descriptionIsCutOff);
-  }, [descriptionIsCutOff]);
-
   const handleDelete = () => {
     onDeleteTask(task.id);
   };

@@ -1,6 +1,7 @@
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +11,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from accounts.api.serializers import (
     RegisterSerializer,
@@ -25,14 +27,26 @@ def make_token_response_for_user(
     refresh = RefreshToken.for_user(user)
     response = Response({"message": message}, status=status_code)
 
-    response.set_cookie(
-        key="refresh_token",
-        value=str(refresh),
-        httponly=True,
-        secure=True,
-        samesite="None",
-        max_age=604800,  # 7 days
-    )
+    if (settings.DEBUG):
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            secure=False,
+            samesite="Strict",
+            max_age=604800,  # 7 days
+            path="/api/auth/",
+        )
+    else:
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            max_age=604800,  # 7 days
+            path="/api/auth/",
+        )
 
     # add an access token for immediate use
     response.data["access_token"] = str(refresh.access_token)
@@ -65,10 +79,9 @@ class RegisterView(APIView):
             username=username, 
             password=password
         )
-        return make_token_response_for_user(
-            user,
-            status_code=status.HTTP_201_CREATED,
-            message="User created successfully",
+        return Response(
+            {"message": "User created successfully"},
+            status=status.HTTP_201_CREATED,
         )
 
 
@@ -76,14 +89,17 @@ class LoginView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        if request.user.is_authenticated:
-            return Response(
-                {"message": "Already authenticated"},
-                status=status.HTTP_200_OK,
-            )
-
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            return Response(
+                {
+                    "message": "Login failed",
+                    "errors": e.detail
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         user = serializer.validated_data['user']
 
@@ -119,3 +135,14 @@ class RefreshTokenView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response(
+            {"message": "Logout successful"}, 
+            status=status.HTTP_200_OK
+        )
+
+        response.delete_cookie("refresh_token")
+
+        return response

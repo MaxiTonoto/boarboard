@@ -37,56 +37,32 @@ export function RegisterForm({ swapAuthAction }) {
     else setValid(false);
   }, [validations]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
-    if (valid) {
-      const createCurrentUser = async () => {
-        const toastOptions = {
-          position: "bottom-left",
-          autoClose: 4000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: "dark",
-          transition: Bounce,
-        };
-        try {
-          const response = await postUser({ username: username, password: password1 })
-
-          toast.success("Register success! Moving to login...", toastOptions);
-          setUsername("");
-          setPassword1("");
-          setPassword2("");
-          swapAuthAction();
-        } catch (error) {
-
-          if (error.response && error.response.data) {
-            if (error.response.data.username) toast.error(
-              `Username: ${error.response.data.username}`, toastOptions
-            );
-            if (error.response.data.password) toast.error(
-              `Password: ${error.response.data.password}`, toastOptions
-            );
-            if (error.response.data.error) toast.error(
-              `Error: ${error.response.data.error}`, toastOptions
-            );
-
-          } else {
-            toast.error(`Register error: ${error.message}`, toastOptions);
-          }
-        }
-      }
-      createCurrentUser();
-
-    } else {
-      toast.error("Password conditions are not met!", {
-        position: "top-right",
-        autoClose: 3000,
-        closeOnClick: true,
-        pauseOnHover: false,
-        theme: "dark",
-        transition: Bounce,
-      });
+    
+    if (!valid) {
+      toast.error("Password conditions are not met!", toastOptions);
+      return;
     }
+
+    try {
+      const response = await postUser({ username: username, password: password1 })
+      console.log(response);
+      toast.success("Register success! Moving to login...", toastOptions);
+      setUsername("");
+      setPassword1("");
+      setPassword2("");
+      swapAuthAction();
+    } catch (error) {
+      const data = error?.response?.data;
+      
+      if (data?.username) toast.error(`Username: ${data.username}`, toastOptions);
+      if (data?.password) toast.error(`Password: ${data.password}`, toastOptions);
+      if (data?.error) toast.error(`Error: ${data.error}`, toastOptions);
+
+      if (!data) toast.error(`Register error: ${error.message}`, toastOptions);
+    } 
   }
 
   return (
@@ -119,6 +95,7 @@ export function RegisterForm({ swapAuthAction }) {
             required
             id="username-input"
             name="username-input"
+            value={username}
             onChange={ e => setUsername(e.target.value) }
           />
         </div>
@@ -139,6 +116,7 @@ export function RegisterForm({ swapAuthAction }) {
             required
             id="password-input"
             name="password-input"
+            value={password1}
             onChange={ e => setPassword1(e.target.value) }
           />
         </div>
@@ -159,6 +137,7 @@ export function RegisterForm({ swapAuthAction }) {
             required
             id="repeat-password-input"
             name="repeat-password-input"
+            value={password2}
             onChange={ e => setPassword2(e.target.value) }
           />
         </div>
@@ -183,7 +162,7 @@ export function RegisterForm({ swapAuthAction }) {
         title="Try to register with entered data"
         bottom="0.5rem"
         right="1rem"
-        bgColor="rgb(102,225,102)"
+        bgColor="rgb(72,152,72)"
       />
       <BoardPageButtons
         label="Login instead"
@@ -196,3 +175,11 @@ export function RegisterForm({ swapAuthAction }) {
     </form>
   );
 }
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 4000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
+};
