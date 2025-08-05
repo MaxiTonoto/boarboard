@@ -38,5 +38,5 @@ urlpatterns = [
     path("api/columns/", include("column.api.urls")),
     path("api/boards/", include("board.api.urls")),
 
-    path("auth/", include("accounts.api.urls")),
+    path("api/auth/", include("accounts.api.urls")),
 ]
