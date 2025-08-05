@@ -1,7 +1,8 @@
 
 
 export function BoardPageButtons({
-  title, top, right, left, bottom, bgColor, label, onClick 
+  title, top, right, left, bottom, bgColor, label, onClick=() => {},
+  role="none", padding=0
 }) {
 
   const style = {
@@ -17,6 +18,7 @@ export function BoardPageButtons({
   return (
     <button 
       title={title || undefined}
+      role={role || "none"}
       className={`transition text-white p-2 px-3 rounded absolute m-4 min-w-[4rem] hover:brightness-95 shadow-sm hover:shadow-md cursor-pointer select-none`}
       style={style}
       onClick={ handleClick }

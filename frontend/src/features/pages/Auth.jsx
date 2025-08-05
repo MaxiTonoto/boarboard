@@ -14,7 +14,12 @@ export function Auth({ onBack }) {
       >
         &lArr;
       </button>
-      { login ? <LoginForm/> : <RegisterForm/> }
+      { login ? 
+        <LoginForm swapAuthAction={ () => setLogin(prev => !prev) } /> 
+        : 
+        <RegisterForm swapAuthAction={ () => setLogin(prev => !prev) } /> 
+      }
+
     </>
   );
 }

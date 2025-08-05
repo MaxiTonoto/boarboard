@@ -6,5 +6,9 @@ const AUTH_URL = API_URL + "/auth/";
 
 export const postUser = (data) => {
 
-    return axios.post(AUTH_URL + "create/", data);
+    return axios.post(
+        AUTH_URL + "create/",
+        data,
+        { withCredentials: true, }
+    );
 };

@@ -18,7 +18,6 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
       try {
         const response = await deleteColumn(props.id);
         if (response.status === 204) {
-          console.log(response)
           toast.success(`Deleted column ${props.title}`, {
             position: "bottom-left",
             autoClose: 3000,
