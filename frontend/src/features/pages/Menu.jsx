@@ -4,9 +4,10 @@ import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { CreateBoardForm } from "../components/CreateBoardForm.jsx";
 import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
+import { refreshUser } from "../../api/authApi.js";
 
 export function Menu({ onOpenBoard, onGoToAuth }) {
-  const { accessToken } = useContext(AuthContext);
+  const { accessToken, setAccessToken } = useContext(AuthContext);
   const { currentUser } = useContext(CurrentUserContext);
   const [publicBoards, setPublicBoards] = useState([]);
   const [userBoards, setUserBoards] = useState([]);
@@ -22,11 +23,19 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
   useEffect(() => {
     if (!accessToken || !currentUser) return;
     
-    const fetchUserBoards = async () => {
-      let boards = await getUserBoards(accessToken);
-      setUserBoards(boards.data);
+    const fetchUserBoards = async (retry = true) => {
+      try {
+        const boards = await getUserBoards(accessToken);
+        setUserBoards(boards.data);
+      } catch (error) {
+        if (error?.status === 403 && retry) {
+          const newToken = await refreshUser();
+          setAccessToken(newToken?.data?.access_token);
+          return fetchUserBoards(false);
+        } 
+      }
     }; fetchUserBoards();
-  }, []);
+  }, [accessToken, currentUser, setAccessToken]);
 
   return (
     <>
@@ -60,7 +69,7 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
             Your boards
           </h2>
           <section className="h-[20%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded">
-          { userBoards.length > 0 ? (
+          { userBoards && userBoards.length > 0 ? (
               userBoards.map((board, index) => {
 
                 return (

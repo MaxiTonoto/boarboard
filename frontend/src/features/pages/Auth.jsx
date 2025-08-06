@@ -13,7 +13,6 @@ export function Auth({ onBack }) {
 
   const handleLogOut = async () => {
     const response = await logoutUser(accessToken);
-    console.log(response);
     if (response.status === 200) {
       toast.warning(response.data.message, toastOptions);
       setCurrentUser(null);

@@ -9,13 +9,15 @@ export const getBoards = () => {
     return axios.get(BOARD_URL + "boards/");
 };
 
-export const getUserBoards = (accessToken) => {
+export const getUserBoards = async (accessToken) => {
     
-    return axios.get(USER_BOARDS_URL, {
+    const response = await axios.get(USER_BOARDS_URL, {
         headers: {
             Authorization: `Bearer ${accessToken}`,
         }
     });
+
+    return response;
 };
 
 export const postBoard = async (accessToken, board) => {

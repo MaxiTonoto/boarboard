@@ -18,7 +18,7 @@ export const postUser = async (data) => {
 
 export const loginUser = async (data) => {
   
-  return axios.post(
+  const response = await axios.post(
       AUTH_URL + "login/",
       data,
       { 
@@ -26,6 +26,8 @@ export const loginUser = async (data) => {
           withCredentials: true, 
       }
   );
+
+  return response;
 };
 
 
@@ -39,4 +41,19 @@ export const logoutUser = async (data) => {
           withCredentials: true, 
       }
   );
+};
+
+
+
+export const refreshUser = async () => {
+
+  const response = await axios.post(
+    AUTH_URL + "refresh/",
+    {},
+    { 
+      headers: {'Content-Type' : 'application/json'},
+      withCredentials: true, 
+    }
+  );
+  return response;
 };
