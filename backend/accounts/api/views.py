@@ -27,29 +27,20 @@ def make_token_response_for_user(
     refresh = RefreshToken.for_user(user)
     response = Response({"message": message}, status=status_code)
 
-    if (settings.DEBUG):
-        response.set_cookie(
-            key="refresh_token",
-            value=str(refresh),
-            httponly=True,
-            secure=False,
-            samesite="Lax",
-            max_age=604800,  # 7 days
-            path="/",
-        )
-    else:
-        response.set_cookie(
-            key="refresh_token",
-            value=str(refresh),
-            httponly=True,
-            secure=True,
-            samesite="None",
-            max_age=604800,  # 7 days
-            path="/api/auth/",
-        )
+    response.set_cookie(
+        key="refresh_token",
+        value=str(refresh),
+        httponly=True,
+        secure=True,
+        samesite="None",
+        max_age=604800,  # 7 days
+        path="/",
+    )
 
     # add an access token for immediate use
-    response.data["access_token"] = str(refresh.access_token)
+    access_token = refresh.access_token
+    response.data["access_token"] = str(access_token)
+    response.data["access_token_exp"] = access_token['exp']   
     return response
 
 
@@ -113,25 +104,29 @@ class LoginView(APIView):
 class RefreshTokenView(APIView):
     
     def post(self, request):
-        print(f"Recieved cookies: {request.COOKIES}")
+
         received_token = request.COOKIES.get('refresh_token')
             
         if not received_token:
             return Response(
-                {'error': '1Invalid refresh token or not recieved',},
+                {'error': 'Invalid refresh token or not recieved',},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
             refresh = RefreshToken(received_token)
-            new_session_token = str(refresh.access_token)
+
+            new_access_token = refresh.access_token
             return Response(
-                {'access_token':new_session_token,},
+                {
+                    'access_token':str(new_access_token),
+                    'access_token_exp':new_access_token['exp'],
+                },
                 status=status.HTTP_200_OK
             )
         except (TokenError, InvalidToken):
             return Response(
-                {'error': '2Invalid refresh token or not recieved',},
+                {'error': 'Invalid refresh token or not recieved',},
                  status=status.HTTP_400_BAD_REQUEST
             )
 
