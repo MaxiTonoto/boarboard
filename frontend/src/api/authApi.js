@@ -27,3 +27,16 @@ export const loginUser = async (data) => {
       }
   );
 };
+
+
+export const logoutUser = async (data) => {
+  
+  return axios.post(
+      AUTH_URL + "logout/",
+      data,
+      { 
+          headers: {'Content-Type' : 'application/json'},
+          withCredentials: true, 
+      }
+  );
+};

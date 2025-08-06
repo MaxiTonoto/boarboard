@@ -2,23 +2,26 @@ import { Bounce, toast } from "react-toastify";
 import React, { useState, useContext } from "react";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { loginUser } from "../../api/authApi.js";
-import { AuthContext } from "../../AuthContext.jsx";
+import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
 
 export function LoginForm({ swapAuthAction }) {
   const { setAccessToken } = useContext(AuthContext);
+  const { setCurrentUser } = useContext(CurrentUserContext);
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await loginUser({username: username, password: password});
+      const response = await loginUser({ username, password });
 
       toast.success(`Successfully logged in user ${username}!`, toastOptions);
-
+      setCurrentUser(username);
+      setAccessToken(response.data.access_token);
       setUsername("");
       setPassword("");
-      setAccessToken(response.data.access_token);
 
     } catch (error) {
 

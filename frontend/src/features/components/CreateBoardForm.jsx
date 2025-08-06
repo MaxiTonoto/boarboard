@@ -1,16 +1,25 @@
 import { Bounce, toast } from "react-toastify";
 import React, { useState, useContext } from "react";
 import { postBoard } from "../../api/boardApi.js";
-import { AuthContext } from "../../AuthContext.jsx";
+import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
 
 
 export function CreateBoardForm({ onCloseForm }) {
   const [title, setTitle] = useState("");
   const [columnsPreset, setColumnsPreset] = useState(0);
   const { accessToken } = useContext(AuthContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!currentUser) {
+      toast.warning(
+        "Can't create a board. Log in or register first!", 
+        toastOptions
+      );
+      return;
+    }
 
     const postCurrentBoard = async () => {
       try {
@@ -21,27 +30,11 @@ export function CreateBoardForm({ onCloseForm }) {
             columnsPreset: columnsPreset,
           });
         if (response.status === 201) {
-          toast.success(`Created board ${response.data.title}`, {
-            position: "bottom-left",
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: "dark",
-            transition: Bounce,
-          });
-
+          toast.success(`Created board ${response.data.title}`, toastOptions);
           onCloseForm();
         }
       } catch (error) {
-        console.log(error)
-        toast.error(`Error creating board: ${error.message}`, {
-          position: "bottom-left",
-          autoClose: 3000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: "dark",
-          transition: Bounce,
-        });
+        toast.error(`Error creating board: ${error.message}`, toastOptions);
       }
     };
 
@@ -118,3 +111,12 @@ export function CreateBoardForm({ onCloseForm }) {
     </form>
   );
 }
+
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 3000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
+};

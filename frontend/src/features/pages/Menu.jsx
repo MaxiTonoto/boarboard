@@ -3,10 +3,11 @@ import { getBoards, getUserBoards } from "../../api/boardApi.js";
 import { BoardThumbnail } from "../components/BoardThumbnail.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { CreateBoardForm } from "../components/CreateBoardForm.jsx";
-import { AuthContext } from "../../AuthContext.jsx";
+import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
 
 export function Menu({ onOpenBoard, onGoToAuth }) {
   const { accessToken } = useContext(AuthContext);
+  const { currentUser } = useContext(CurrentUserContext);
   const [publicBoards, setPublicBoards] = useState([]);
   const [userBoards, setUserBoards] = useState([]);
   const [creatingBoard, setCreatingBoard] = useState(false); 
@@ -19,6 +20,8 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
   }, []);
 
   useEffect(() => {
+    if (!accessToken || !currentUser) return;
+    
     const fetchUserBoards = async () => {
       let boards = await getUserBoards(accessToken);
       setUserBoards(boards.data);
@@ -35,10 +38,10 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
       <main className="w-[100%] h-[100%]">
         <BoardPageButtons
           title="Register or log in"
-          label="👤"
+          label={currentUser ? currentUser : "👤" }
           top="0"
           left="0"
-          bgColor="rgb(72,200,72)"
+          bgColor="rgb(45, 130, 45)"
           onClick={() => onGoToAuth()}
         />
         <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
@@ -115,3 +118,5 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
     </>
   );
 }
+
+
