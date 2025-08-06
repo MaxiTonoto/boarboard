@@ -33,9 +33,9 @@ def make_token_response_for_user(
             value=str(refresh),
             httponly=True,
             secure=False,
-            samesite="Strict",
+            samesite="Lax",
             max_age=604800,  # 7 days
-            path="/api/auth/",
+            path="/",
         )
     else:
         response.set_cookie(
@@ -43,7 +43,7 @@ def make_token_response_for_user(
             value=str(refresh),
             httponly=True,
             secure=True,
-            samesite="Strict",
+            samesite="None",
             max_age=604800,  # 7 days
             path="/api/auth/",
         )
@@ -111,30 +111,29 @@ class LoginView(APIView):
 
 
 class RefreshTokenView(APIView):
-    serializer_class = RefreshTokenSerializer
     
     def post(self, request):
-        serializer = RefreshTokenSerializer(data=request.data)
+        print(f"Recieved cookies: {request.COOKIES}")
+        received_token = request.COOKIES.get('refresh_token')
+            
+        if not received_token:
+            return Response(
+                {'error': '1Invalid refresh token or not recieved',},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if serializer.is_valid():
-            recieved_token = serializer.validated_data['refresh_token']
-            try:
-                refresh = RefreshToken(recieved_token)
-                session_token = str(refresh.access_token)
-                return Response(
-                    {'session_token': session_token},
-                    status=status.HTTP_200_OK
-                )
-            except (TokenError, InvalidToken):
-                return Response(
-                    {'error': 'Invalid refresh token'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        try:
+            refresh = RefreshToken(received_token)
+            new_session_token = str(refresh.access_token)
+            return Response(
+                {'access_token':new_session_token,},
+                status=status.HTTP_200_OK
+            )
+        except (TokenError, InvalidToken):
+            return Response(
+                {'error': '2Invalid refresh token or not recieved',},
+                 status=status.HTTP_400_BAD_REQUEST
+            )
 
 class LogoutView(APIView):
     def post(self, request):

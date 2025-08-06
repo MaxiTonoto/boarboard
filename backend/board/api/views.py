@@ -21,7 +21,7 @@ class BoardViewSet(viewsets.ModelViewSet):
             return Board.objects.filter(id__in=[1,2,3])
 
     def perform_create(self, serializer):
-        serializer.save(owner_id=self.request.user)
+        serializer.save(owner=self.request.user)
 
 class UserBoardsViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
@@ -29,4 +29,4 @@ class UserBoardsViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all()
     
     def get_queryset(self):
-        return Board.objects.filter(owner_id=self.request.user.id)
+        return Board.objects.filter(owner=self.request.user.id)

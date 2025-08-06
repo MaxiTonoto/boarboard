@@ -9,8 +9,8 @@ class BoardSerializer(serializers.ModelSerializer):
         model = Board
         fields = [
             "id", "title", "created_at",
-            "last_modified", "owner_id",
+            "last_modified", "owner",
             "columns",
         ]
 
-        read_only_fields = ("owner_id", "created_at", "last_modified")
+        read_only_fields = ("owner", "created_at", "last_modified")

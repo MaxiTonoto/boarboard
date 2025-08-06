@@ -8,7 +8,7 @@ from board.models import Board
 class ColumnModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
-        self.board = Board.objects.create(title="TestBoard", owner_id=self.user)
+        self.board = Board.objects.create(title="TestBoard", owner=self.user)
         self.column1 = Column.objects.create(title="Pending", order=1, board_id=self.board)
         self.column2 = Column.objects.create(
             title="In Progress", order=2, board_id=self.board
@@ -64,7 +64,7 @@ class ColumnModelTest(TestCase):
         # create, save and load columnless board
         new_board = Board.objects.create(
             title="TestBoard 2: This time it's personal", 
-            owner_id=self.user
+            owner=self.user
         )
         new_board.save()
         new_board.refresh_from_db()
