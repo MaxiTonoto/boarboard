@@ -9,18 +9,18 @@ class ColumnModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
         self.board = Board.objects.create(title="TestBoard", owner=self.user)
-        self.column1 = Column.objects.create(title="Pending", order=1, board_id=self.board)
+        self.column1 = Column.objects.create(title="Pending", order=1, board=self.board)
         self.column2 = Column.objects.create(
-            title="In Progress", order=2, board_id=self.board
+            title="In Progress", order=2, board=self.board
         )
-        self.column3 = Column.objects.create(title="Done", order=3, board_id=self.board)
+        self.column3 = Column.objects.create(title="Done", order=3, board=self.board)
 
     def test_append_column_no_order_conflict(self):
         initial_board_column_count = self.board.columns.count()
 
         # create, save and load new column at last order
         column4 = Column(
-            title="Discarded", order=initial_board_column_count + 1, board_id=self.board
+            title="Discarded", order=initial_board_column_count + 1, board=self.board
         )
         column4.save()
         column4.refresh_from_db()
@@ -41,7 +41,7 @@ class ColumnModelTest(TestCase):
         column3 = Column.objects.get(title="Done")
         # create, save and load new column at last order
         column4 = Column(
-            title="Discarded", order=initial_board_column_count, board_id=self.board
+            title="Discarded", order=initial_board_column_count, board=self.board
         )
         column4.save()
         column4.refresh_from_db()
@@ -70,13 +70,13 @@ class ColumnModelTest(TestCase):
         new_board.refresh_from_db()
 
         # first column with order 0
-        first_column = Column(title="1st col", board_id=new_board, order=0)
+        first_column = Column(title="1st col", board=new_board, order=0)
 
         # second column, with no order
-        second_column = Column(title="2nd col", board_id=new_board)
+        second_column = Column(title="2nd col", board=new_board)
         
         # third column, order past max
-        third_column = Column(title="3rd col", board_id=new_board, order=100)
+        third_column = Column(title="3rd col", board=new_board, order=100)
 
         first_column.save()
         second_column.save()
@@ -91,8 +91,8 @@ class ColumnModelTest(TestCase):
         self.assertEqual(third_column.order, 3)
 
     def test_change_column_order_higher(self):
-        column4 = Column.objects.create(title="Discarded", board_id=self.board, order=4)
-        column5 = Column.objects.create(title="Planned", board_id=self.board, order=5)
+        column4 = Column.objects.create(title="Discarded", board=self.board, order=4)
+        column5 = Column.objects.create(title="Planned", board=self.board, order=5)
 
         column4.order = 2
         column4.save()
@@ -108,8 +108,8 @@ class ColumnModelTest(TestCase):
         self.assertNotEqual(self.column3.order, 3)
     
     def test_change_column_order_lower(self):
-        column4 = Column.objects.create(title="Discarded", board_id=self.board, order=4)
-        column5 = Column.objects.create(title="Planned", board_id=self.board, order=5)
+        column4 = Column.objects.create(title="Discarded", board=self.board, order=4)
+        column5 = Column.objects.create(title="Planned", board=self.board, order=5)
 
         self.column2.order = 4
         self.column2.save()
