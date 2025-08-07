@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { deleteColumn } from "../../api/columnApi.js";
 import { Bounce, toast } from "react-toastify";
 
-export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
-
+export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDeleteColumn }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDeleteInput, setConfirmDeleteInput] = useState(""); 
@@ -26,6 +25,7 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation }) {
             theme: "dark",
             transition: Bounce,
           });
+          onDeleteColumn(props.id);
         }
       } catch (error) {
         toast.error(`Error deleting column: ${error.message}`, {

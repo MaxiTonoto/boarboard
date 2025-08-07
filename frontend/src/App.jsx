@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer, Bounce } from 'react-toastify';
 
 import { Menu } from './features/pages/Menu.jsx';
 import { Auth } from './features/pages/Auth.jsx';
@@ -23,10 +23,21 @@ function App() {
     
     // refresh 30s before the token expires
     const refreshBeforeExpiry = expiresInMs - Date.now() - 30000; 
-
+    
     if (refreshBeforeExpiry > 0) {
       const timeoutId = setTimeout(() => {
-        refreshToken();
+        try {
+          refreshToken();
+        } catch (error) {
+          toast.error(`Authentication error: ${error}`, {
+            position: "bottom-left",
+            autoClose: 40000,
+            closeOnClick: true,
+            pauseOnHover: false,
+            theme: "dark",
+            transition: Bounce,
+          });
+        }
       }, refreshBeforeExpiry);
   
       return () => clearTimeout(timeoutId);
@@ -34,6 +45,7 @@ function App() {
   }, [accessTokenExp]);
 
   const refreshToken = async () => {
+    
     const newToken = await refreshUser();
     setAccessToken(newToken?.data?.access_token);
     setAccessTokenExp(newToken?.data?.access_token_exp);

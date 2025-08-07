@@ -26,6 +26,16 @@ export function Board({ props, onBack }) {
     setCreatingTask(false);
     setCreatingColumn(false);
   };
+
+  const handleCreateTask = (columnId, task) => {
+    setBoardColumns((prev) => ( 
+      prev.map((col) => col.id === columnId ?
+        // add new task only to modified column
+        { ...col, tasks: [...col.tasks, task]} :
+        col
+      )
+    ));
+  }
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId);
     setBoardColumns((prev) => {
@@ -45,6 +55,15 @@ export function Board({ props, onBack }) {
       theme: "dark",
       transition: Bounce,
     });
+  };
+
+  const handleCreateColumn = (newColumn) => {
+    setBoardColumns([...boardColumns, newColumn]);
+  };
+  const handleDeleteColumn = (deletedColId) => {
+    setBoardColumns(prev => 
+      prev.filter((col) => col.id !== deletedColId)
+    );
   };
 
   const handleDragStart = (e) => {
@@ -159,15 +178,17 @@ export function Board({ props, onBack }) {
       />
       {creatingTask && (
         <CreateTaskForm
-          columnList={props.columns}
+          columnList={boardColumns}
           onCloseForm={closeForm}
           defaultColumnId={creatingTaskColId}
+          onCreatedNewTask={handleCreateTask}
         />
       )}
       {creatingColumn && (
         <CreateColumnForm
           board={props}
           onCloseForm={closeForm}
+          onCreatedNewColumn={handleCreateColumn}
         />
       )}
       <button
@@ -176,11 +197,11 @@ export function Board({ props, onBack }) {
       >
         &lArr;
       </button>
-      <h1 className="text-4xl text-white text-center w-[100%] py-[0.5rem]">
+      <h1 className="text-4xl text-white text-center w-[100%] py-2 mt-2">
         {props.title}
       </h1>
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
-        {boardColumns.length > 0 ? 
+        { boardColumns && boardColumns.length > 0 ? 
           boardColumns.sort((a, b) => (a.order - b.order))
           .map((col) => {
             return (
@@ -190,6 +211,7 @@ export function Board({ props, onBack }) {
                 onCreateTask={() => setCreatingTask(true)}
                 onOpenTaskCreation={setCreatingTaskColId}
                 onDeleteTask={handleDeleteTask}
+                onDeleteColumn={handleDeleteColumn}
               />
             );
           }) : 

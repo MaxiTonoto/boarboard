@@ -1,6 +1,6 @@
 import { TaskCard } from "./TaskCard.jsx";
 import { ColumnDropdown } from "./ColumnDropdown.jsx";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { useDroppable } from "@dnd-kit/core";
 
@@ -9,7 +9,7 @@ import {
   verticalListSortingStrategy 
 } from "@dnd-kit/sortable";
 
-export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask }) {
+export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, onDeleteColumn }) {
 
   const { setNodeRef, isOver } = useDroppable({
     id: col.id,
@@ -21,6 +21,10 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask }) 
   const taskIds = useMemo(() => 
     col.tasks.map((task) => task.id), [col.tasks]
   );
+
+  useEffect(() => {
+  }, [col.tasks]);
+
 
   return (
     <div
@@ -34,6 +38,7 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask }) 
           onCreateTask={onCreateTask}
           defaultColumnId={col.id}
           onOpenTaskCreation={onOpenTaskCreation}
+          onDeleteColumn={onDeleteColumn}
         />
       </div>
 

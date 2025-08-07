@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { postColumn } from "../../api/columnApi.js";
 
 
-export function CreateColumnForm({ board, onCloseForm }) {
+export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
   const [title, setTitle] = useState("");
   const [order, setOrder] = useState(0);
 
@@ -17,7 +17,7 @@ export function CreateColumnForm({ board, onCloseForm }) {
           title: title,
           order: order || 0,
           tasks: [],
-          board_id: board.id,
+          board: board.id,
         });
         if (response.status === 201) {
           toast.success(`Created column ${response.data.title}`, {
@@ -31,6 +31,8 @@ export function CreateColumnForm({ board, onCloseForm }) {
 
           setTitle("");
           setOrder(0);
+
+          onCreatedNewColumn(response.data);
         }
       } catch (error) {
         toast.error(`Error creating column: ${error.message}`, {

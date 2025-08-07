@@ -3,7 +3,7 @@ import { Bounce, toast } from "react-toastify";
 import React, { useState, useEffect } from "react";
 
 
-export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
+export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCreatedNewTask }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetColumn, setTargetColumn] = useState(defaultColumnId);
@@ -11,7 +11,6 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const postCurrentTask = async () => {
       try {
         let response = await postTask({
@@ -33,6 +32,8 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId }) {
 
           setTitle("");
           setDescription("");
+
+          onCreatedNewTask(targetColumn, response.data);
         }
       } catch (error) {
         toast.error(`Error creating task: ${error.message}`, {
