@@ -5,9 +5,15 @@ import axios from 'axios';
 const TASK_URL = API_URL + "/tasks/";
 
 
-export const postTask = async (task) => {
+export const postTask = async (task, accessToken) => {
     
-  return axios.post(TASK_URL, task);
+  return axios.post(
+    TASK_URL,
+    task,
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  );
 };
 
 export const patchTaskOrder = async (taskId, newOrder) => {

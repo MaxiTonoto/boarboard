@@ -13,35 +13,38 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
   const [userBoards, setUserBoards] = useState([]);
   const [creatingBoard, setCreatingBoard] = useState(false); 
 
+  const fetchBoards = async () => {
+    let boards = await getBoards(accessToken);
+    setPublicBoards(boards.data);
+  }; 
   useEffect(() => {
-    const fetchBoards = async () => {
-      let boards = await getBoards(accessToken);
-      setPublicBoards(boards.data);
-    }; fetchBoards();
+    fetchBoards()
   }, []);
 
+  const fetchUserBoards = async (retry = true) => {
+    try {
+      const boards = await getUserBoards(accessToken);
+      setUserBoards(boards.data);
+    } catch (error) {
+      if (error?.status === 403 && retry) {
+        const newToken = await refreshUser();
+        setAccessToken(newToken?.data?.access_token);
+        return fetchUserBoards(false);
+      } 
+    }
+  };
   useEffect(() => {
     if (!accessToken || !currentUser) return;
-    
-    const fetchUserBoards = async (retry = true) => {
-      try {
-        const boards = await getUserBoards(accessToken);
-        setUserBoards(boards.data);
-      } catch (error) {
-        if (error?.status === 403 && retry) {
-          const newToken = await refreshUser();
-          setAccessToken(newToken?.data?.access_token);
-          return fetchUserBoards(false);
-        } 
-      }
-    }; fetchUserBoards();
+    fetchUserBoards();
   }, [accessToken, currentUser, setAccessToken]);
+
 
   return (
     <>
       { creatingBoard && 
         <CreateBoardForm
           onCloseForm={() => setCreatingBoard(false)}
+          onCreateBoard={ () => fetchUserBoards() }
         />
       }
       <main className="w-[100%] h-[100%]">
@@ -56,27 +59,30 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
         <h1 className="text-center text-4xl py-[0.5rem] my-[0.25rem] text-white w-[100%]">
           Main Menu
         </h1>
-        <section className="w-[98%] h-[88%] m-auto p-[0.5rem] bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_8px_#000]">
-          <BoardPageButtons
-            title="Create a new board"
-            label="New board"
-            top="0"
-            right="0"
-            bgColor="rgb(102,102,240)"
-            onClick={() => setCreatingBoard(true)}
-          />
-          <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem]">
+        <section className="w-[98%] h-[88%] m-auto p-[0.5rem] bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_8px_#000] relative">
+          { (currentUser && accessToken) &&
+            <BoardPageButtons
+              title="Create a new board"
+              label="New board"
+              top="0"
+              right="0"
+              bgColor="rgb(102,102,240)"
+              onClick={() => setCreatingBoard(true)}
+            />
+          }
+          <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem] pb-5">
             Your boards
           </h2>
-          <section className="h-[20%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded">
+          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded overflow-x-auto">
           { userBoards && userBoards.length > 0 ? (
               userBoards.map((board, index) => {
 
                 return (
                   <button
                     key={index}
-                    className="w-[10rem] h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer"
+                    className="min-w-[10rem] min-h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer"
                     onClick={ () => {onOpenBoard(board)} }
+                    title={board.title}
                   >
                     <BoardThumbnail
                       props={board}
@@ -85,8 +91,12 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
                 );
               })
             ) : (
-              <p className="text-left text-white text-lg">
-                - Nothing here yet :p
+              (!currentUser && !accessToken) ?
+              <p className="text-left text-white text-lg m-auto">
+                Register / Log in to create your own boards!
+              </p> :
+              <p className="text-left text-white text-lg m-auto">
+                Nothing here yet...
               </p>
             ) }
 
@@ -97,7 +107,7 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
           <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem] pt-[3rem]">
             Example boards
           </h2>
-          <section className="h-[20%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded">
+          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded overflow-x-auto">
             { publicBoards.length > 0 ? (
               publicBoards.map((board, index) => {
 
@@ -127,5 +137,3 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
     </>
   );
 }
-
-

@@ -4,7 +4,7 @@ import { postBoard } from "../../api/boardApi.js";
 import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
 
 
-export function CreateBoardForm({ onCloseForm }) {
+export function CreateBoardForm({ onCloseForm, onCreateBoard }) {
   const [title, setTitle] = useState("");
   const [columnsPreset, setColumnsPreset] = useState(0);
   const { accessToken } = useContext(AuthContext);
@@ -32,6 +32,7 @@ export function CreateBoardForm({ onCloseForm }) {
         if (response.status === 201) {
           toast.success(`Created board ${response.data.title}`, toastOptions);
           onCloseForm();
+          onCreateBoard();
         }
       } catch (error) {
         toast.error(`Error creating board: ${error.message}`, toastOptions);

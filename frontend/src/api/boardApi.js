@@ -34,9 +34,24 @@ export const postBoard = async (accessToken, board) => {
         console.log(error);
     }
 
-}
+};
 
-export const getBoard = (boardId) => {
+export const getBoard = (boardId, accessToken) => {
 
-    return axios.get(BOARD_URL + boardId + "/");
-}
+    return axios.get(
+      (BOARD_URL + "boards/" + boardId + "/"),
+      {headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }}
+    );
+};
+
+export const deleteBoard = (boardId, accessToken) => {
+
+    return axios.delete(
+      (BOARD_URL + "boards/" + boardId + "/"),
+      {headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }}
+    );
+};

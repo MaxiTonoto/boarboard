@@ -1,34 +1,26 @@
 import { postTask } from "../../api/taskApi";
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../../AuthContext";
 
 export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCreatedNewTask }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetColumn, setTargetColumn] = useState(defaultColumnId);
-
+  const { accessToken } = useContext(AuthContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const postCurrentTask = async () => {
       try {
-        let response = await postTask({
+        const response = await postTask({
           column: targetColumn,
           title: title,
           description: description,
           order: 0,
-          owner: 1,
-        });
+        }, accessToken);
         if (response.status === 201) {
-          toast.success(`Created task ${response.data.title}`, {
-            position: "bottom-left",
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: "dark",
-            transition: Bounce,
-          });
+          toast.success(`Created task ${response.data.title}`, toastOptions);
 
           setTitle("");
           setDescription("");
@@ -36,14 +28,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
           onCreatedNewTask(targetColumn, response.data);
         }
       } catch (error) {
-        toast.error(`Error creating task: ${error.message}`, {
-          position: "bottom-left",
-          autoClose: 3000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: "dark",
-          transition: Bounce,
-        });
+        toast.error(`Error creating task: ${error.message}`, toastOptions);
       }
     };
 
@@ -142,3 +127,12 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
     </form>
   );
 }
+
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 3000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
+};

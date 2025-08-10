@@ -3,18 +3,22 @@ import { TaskCard } from "../components/TaskCard.jsx";
 import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
 import { CreateColumnForm } from "../components/CreateColumnForm.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
-import React, { useState } from "react";
+import { BoardTitle } from "../components/BoardTitle.jsx";
+import React, { useState, useContext, useEffect } from "react";
 import { Bounce, toast } from "react-toastify";
 import { 
   deleteTask,
   patchTaskOrder,
   patchTaskColumnAndOrder,
 } from "../../api/taskApi.js";
+import { getBoard, deleteBoard } from "../../api/boardApi.js";
+import { AuthContext } from "../../AuthContext.jsx";
 
 import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
 export function Board({ props, onBack }) {
+  const { accessToken } = useContext(AuthContext);
   const [boardColumns, setBoardColumns] = useState(props.columns);
   const [activeTask, setActiveTask] = useState(null);
   const [creatingColumn, setCreatingColumn] = useState(false);
@@ -22,6 +26,32 @@ export function Board({ props, onBack }) {
   const [creatingTaskColId, setCreatingTaskColId] = useState(
     () => (props.columns?.[0]?.id ?? null)
   );
+
+  const downloadCurrentBoard = async () => {
+    const currentBoard = await getBoard(props.id, accessToken);
+    const blob = new Blob([JSON.stringify(currentBoard.data, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = props.title.replace(".", "") + ".json";
+    link.click();
+  };
+
+  const deleteCurrentBoard = async () => {
+    try {
+      const response = await deleteBoard(props.id, accessToken);
+      if (response.status === 204) {
+        toast.warning(`Deleted board ${props.title}`, toastOptions);
+        onBack();
+      } else {
+        toast.warning(`Error deleting board ${props.title}: ${response.message}`, toastOptions);
+      }
+    } catch (error) {
+      toast.warning(`Error deleting board ${props.title}`, toastOptions);
+    }
+    
+  };
+
   const closeForm = () => {
     setCreatingTask(false);
     setCreatingColumn(false);
@@ -59,12 +89,14 @@ export function Board({ props, onBack }) {
 
   const handleCreateColumn = (newColumn) => {
     setBoardColumns([...boardColumns, newColumn]);
+    setCreatingTaskColId(newColumn.id);
   };
   const handleDeleteColumn = (deletedColId) => {
     setBoardColumns(prev => 
       prev.filter((col) => col.id !== deletedColId)
     );
   };
+  
 
   const handleDragStart = (e) => {
     const { active } = e;
@@ -197,9 +229,11 @@ export function Board({ props, onBack }) {
       >
         &lArr;
       </button>
-      <h1 className="text-4xl text-white text-center w-[100%] py-2 mt-2">
-        {props.title}
-      </h1>
+      <BoardTitle 
+        props={props} 
+        onDowloadBoard={downloadCurrentBoard} 
+        onDeleteBoard={deleteCurrentBoard}  
+      />
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
         { boardColumns && boardColumns.length > 0 ? 
           boardColumns.sort((a, b) => (a.order - b.order))
@@ -245,3 +279,12 @@ export function Board({ props, onBack }) {
   );
 }
 
+
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 3000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
+};
