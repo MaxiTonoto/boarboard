@@ -73,14 +73,13 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
           <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem] pb-5">
             Your boards
           </h2>
-          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded overflow-x-auto">
-          { userBoards && userBoards.length > 0 ? (
+          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.75rem] rounded overflow-x-auto">
+          { (userBoards && (userBoards.length > 0)) ? (
               userBoards.map((board, index) => {
-
                 return (
                   <button
                     key={index}
-                    className="min-w-[10rem] min-h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer"
+                    className="min-h-[100%] min-w-1/7 bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
                     onClick={ () => {onOpenBoard(board)} }
                     title={board.title}
                   >
@@ -107,14 +106,14 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
           <h2 className="text-left text-2xl py-[0.5rem] text-white w-[100%] pl-[1rem] pt-[3rem]">
             Example boards
           </h2>
-          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.52rem] rounded overflow-x-auto">
+          <section className="h-[25%] w-[100%] bg-[rgba(255,255,255,0.1)] flex flex-row p-[0.5rem] gap-[0.75rem] rounded overflow-x-auto">
             { publicBoards.length > 0 ? (
               publicBoards.map((board, index) => {
 
                 return (
                   <button
                     key={index}
-                    className="w-[10rem] h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer"
+                    className="min-h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
                     onClick={ () => {onOpenBoard(board)} }
                   >
                     <BoardThumbnail

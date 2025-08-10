@@ -1,11 +1,12 @@
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { postColumn } from "../../api/columnApi.js";
-
+import { AuthContext } from "../../AuthContext";
 
 export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
   const [title, setTitle] = useState("");
   const [order, setOrder] = useState(0);
+  const { accessToken } = useContext(AuthContext);
 
 
   const handleSubmit = (e) => {
@@ -13,12 +14,12 @@ export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
 
     const postCurrentColumn = async () => {
       try {
-        let response = await postColumn({
+        const response = await postColumn({
           title: title,
           order: order || 0,
           tasks: [],
           board: board.id,
-        });
+        }, accessToken);
         if (response.status === 201) {
           toast.success(`Created column ${response.data.title}`, {
             position: "bottom-left",

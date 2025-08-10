@@ -3,12 +3,23 @@ import axios from "axios";
 
 const COLUMN_URL = API_URL + "/columns/";
 
-export const postColumn = async (column) => {
+export const postColumn = async (column, accessToken) => {
 
-  return axios.post(COLUMN_URL, column);
+  return axios.post(
+    COLUMN_URL,
+    column,
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  );
 };
 
-export const deleteColumn = async (columnId) => {
+export const deleteColumn = async (columnId, accessToken) => {
 
-  return axios.delete(COLUMN_URL + columnId + "/");
+  return axios.delete(
+    (COLUMN_URL + columnId + "/"),
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  );
 };

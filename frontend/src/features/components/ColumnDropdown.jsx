@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { deleteColumn } from "../../api/columnApi.js";
 import { Bounce, toast } from "react-toastify";
+import { AuthContext } from "../../AuthContext.jsx";
 
 export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDeleteColumn }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDeleteInput, setConfirmDeleteInput] = useState(""); 
+  const { accessToken } = useContext(AuthContext);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -15,7 +17,7 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
   const handleDeleteColumn = () => {
     const deleteCurrentColumn = async () => {
       try {
-        const response = await deleteColumn(props.id);
+        const response = await deleteColumn(props.id, accessToken);
         if (response.status === 204) {
           toast.success(`Deleted column ${props.title}`, {
             position: "bottom-left",

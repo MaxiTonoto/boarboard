@@ -7,6 +7,7 @@ import { Board } from './features/pages/Board.jsx';
 
 import { AuthContext, AuthExpiryContext, CurrentUserContext } from './AuthContext.jsx';
 import { refreshUser } from './api/authApi.js';
+import './App.css';
 
 function App() {
   const [accessToken, setAccessToken] = useState(null);

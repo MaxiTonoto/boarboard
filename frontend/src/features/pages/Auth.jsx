@@ -36,7 +36,7 @@ export function Auth({ onBack }) {
           <h1 
             className="text-white text-4xl text-center w-full mb-4 absolute top-1/4 left-1/2 -translate-1/2"
           >
-            Curretly logged in as {currentUser}
+            Currently logged in as {currentUser}
           </h1>
           <button
             className="bg-red-600 rounded px-2 py-4 text-xl text-white absolute top-1/2 left-1/2 -translate-1/2 cursor-pointer"
