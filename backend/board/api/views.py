@@ -1,4 +1,5 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny, SAFE_METHODS
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets
 
 from board.api.serializers import BoardSerializer
@@ -7,7 +8,6 @@ from board.models import Board
 class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     queryset = Board.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
@@ -21,8 +21,11 @@ class BoardViewSet(viewsets.ModelViewSet):
             return Board.objects.filter(id__in=[1,2,3])
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
+        if self.request.user.is_authenticated:
+            serializer.save(owner=self.request.user)
+        else:
+            raise PermissionDenied
+            
 class UserBoardsViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     permission_classes = [IsAuthenticated]
