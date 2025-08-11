@@ -21,14 +21,7 @@ export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
           board: board.id,
         }, accessToken);
         if (response.status === 201) {
-          toast.success(`Created column ${response.data.title}`, {
-            position: "bottom-left",
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: "dark",
-            transition: Bounce,
-          });
+          toast.success(`Created column ${response.data.title}`, toastOptions);
 
           setTitle("");
           setOrder(0);
@@ -36,14 +29,7 @@ export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
           onCreatedNewColumn(response.data);
         }
       } catch (error) {
-        toast.error(`Error creating column: ${error.message}`, {
-          position: "bottom-left",
-          autoClose: 3000,
-          closeOnClick: true,
-          pauseOnHover: false,
-          theme: "dark",
-          transition: Bounce,
-        });
+        toast.error(`Error creating column: ${error.response.data.detail || error.message}`, toastOptions);
       }
     };
 
@@ -118,4 +104,13 @@ export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
       />
     </form>
   );
+}
+
+const toastOptions = {
+  position: "bottom-left",
+  autoClose: 3000,
+  closeOnClick: true,
+  pauseOnHover: false,
+  theme: "dark",
+  transition: Bounce,
 }

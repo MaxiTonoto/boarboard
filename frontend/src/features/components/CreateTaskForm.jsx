@@ -21,11 +21,12 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
         }, accessToken);
         if (response.status === 201) {
           toast.success(`Created task ${response.data.title}`, toastOptions);
-
           setTitle("");
           setDescription("");
-
           onCreatedNewTask(targetColumn, response.data);
+        } else {
+          console.log(response);
+          toast.error(`Error creating task: ${response}`, toastOptions);
         }
       } catch (error) {
         toast.error(`Error creating task: ${error.message}`, toastOptions);

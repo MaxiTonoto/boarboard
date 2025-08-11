@@ -13,14 +13,18 @@ import {
 } from "../../api/taskApi.js";
 import { getBoard, deleteBoard } from "../../api/boardApi.js";
 import { AuthContext } from "../../AuthContext.jsx";
-
 import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
+import { 
+  arrayMove, 
+  SortableContext,
+  horizontalListSortingStrategy  
+} from "@dnd-kit/sortable";
 
 export function Board({ props, onBack }) {
   const { accessToken } = useContext(AuthContext);
   const [boardColumns, setBoardColumns] = useState(props.columns);
   const [activeTask, setActiveTask] = useState(null);
+  const [activeColumn, setActiveColumn] = useState(null);
   const [creatingColumn, setCreatingColumn] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
   const [creatingTaskColId, setCreatingTaskColId] = useState(
@@ -101,6 +105,7 @@ export function Board({ props, onBack }) {
   const handleDragStart = (e) => {
     const { active } = e;
     active.data.current?.type === "Task" && setActiveTask(active.data.current.task);
+    active.data.current?.type === "Column" && setActiveColumn(active.data.current.column);
   };
   
   const handleDragEnd = (e) => {
@@ -110,79 +115,101 @@ export function Board({ props, onBack }) {
 
     const activeId = active.id;
     const overId = over.id;
-    if (activeId === overId) return;
-
-    setBoardColumns(columns => {
-      // dragged task's original column
-      const activeColumn = columns.find((col) =>
-        col.tasks.some((task) => task.id === activeId)
-      );
-      // find the column where the task was dropped
-      const overColumn = boardColumns.find((col) => col.id === overId ||
-        // if it was dropped over a task, get it's column
-        col.tasks.some((task) => task.id === overId)
-      );
-
-      // guard clause in case a column wasn't found
-      if (!activeColumn || !overColumn) return columns;
-
-      // helper function
-      const assignOrder = (tasks) =>
-        tasks.map((task, index) => ({ ...task, order: index + 1 }));
-
-      // reorder tasks on same column
-      if (activeColumn.id === overColumn.id) {
-        // index of the dragged task before the drag
-        const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
-
-        // index of the task that got the dragged task dropped over
-        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
-        (overIndex === -1) && (overIndex = overColumn.tasks.length-1)
-
-        // apply reordering of tasks on a copy
-        const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
-
-        // make API call to save change
-        patchTaskOrder(activeId, overIndex+1);
-
-        // return columns as they are except for the modified one
-        return columns.map((col) => col.id === activeColumn.id
-            ? { ...col, tasks: assignOrder(newTasks) }
-            : col
+    if (activeId === overId) return;   // exit if was only a click
+    
+    if (active.data.current?.type === "Task") {
+      setBoardColumns(columns => {
+        // dragged task's original column
+        const activeColumn = columns.find((col) =>
+          col.tasks.some((task) => task.id === activeId)
+        );
+        // find the column where the task was dropped
+        const overColumn = boardColumns.find((col) => col.id === overId ||
+          // if it was dropped over a task, get it's column
+          col.tasks.some((task) => task.id === overId)
         );
 
-      // dragged task to another column
-      } else {
-        const movedTask = activeColumn.tasks.find((t) => t.id === activeId);
+        // guard clause in case a column wasn't found
+        if (!activeColumn || !overColumn) return columns;
 
-        // get dragged task's original column's tasks except for itself
-        const newActiveTasks = activeColumn.tasks.filter((t) => t.id !== activeId);
+        // helper function
+        const assignOrder = (tasks) =>
+          tasks.map((task, index) => ({ ...task, order: index + 1 }));
 
-        // get index of the task that got the dragged one dropped over
-        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
-        // if dropped over the column (not a task), place at the end
-        (overIndex === -1) && (overIndex = overColumn.tasks.length);
+        // reorder tasks on same column
+        if (activeColumn.id === overColumn.id) {
+          // index of the dragged task before the drag
+          const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
 
-        const newOverTasks = [...overColumn.tasks];
+          // index of the task that got the dragged task dropped over
+          let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+          (overIndex === -1) && (overIndex = overColumn.tasks.length-1)
 
-        // target column's task list with changes
-        newOverTasks.splice(overIndex, 0, { ...movedTask, columnId: overColumn.id });
+          // apply reordering of tasks on a copy
+          const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
 
-        // TODO: api call to move task and update orders in both columns
-        patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1);
+          // make API call to save change
+          patchTaskOrder(activeId, overIndex+1);
 
-        return columns.map((col) => {
-          if (col.id === activeColumn.id) {
-            // update origin column's task list
-            return { ...col, tasks: assignOrder(newActiveTasks) };
-          }
-          else if (col.id === overColumn.id) {
-            // update target column's task list
-            return { ...col, tasks: assignOrder(newOverTasks) };
-          } else return col;  // for all other columns
-        });
-      }
-    });
+          // return columns as they are except for the modified one
+          return columns.map((col) => col.id === activeColumn.id
+              ? { ...col, tasks: assignOrder(newTasks) }
+              : col
+          );
+
+        // dragged task to another column
+        } else {
+          const movedTask = activeColumn.tasks.find((t) => t.id === activeId);
+
+          // get dragged task's original column's tasks except for itself
+          const newActiveTasks = activeColumn.tasks.filter((t) => t.id !== activeId);
+
+          // get index of the task that got the dragged one dropped over
+          let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+          // if dropped over the column (not a task), place at the end
+          (overIndex === -1) && (overIndex = overColumn.tasks.length);
+
+          const newOverTasks = [...overColumn.tasks];
+
+          // target column's task list with changes
+          newOverTasks.splice(overIndex, 0, { ...movedTask, columnId: overColumn.id });
+
+          // TODO: api call to move task and update orders in both columns
+          patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1);
+
+          return columns.map((col) => {
+            if (col.id === activeColumn.id) {
+              // update origin column's task list
+              return { ...col, tasks: assignOrder(newActiveTasks) };
+            }
+            else if (col.id === overColumn.id) {
+              // update target column's task list
+              return { ...col, tasks: assignOrder(newOverTasks) };
+            } else return col;  // for all other columns
+          });
+        }
+      });
+    } else if (active.data.current?.type === "Column") {
+      setBoardColumns(columns => {
+        const activeIndex = columns.findIndex(col => col.id === activeId);
+        const overIndex = columns.findIndex(col => col.id === overId);
+
+        if (activeIndex === -1 || overIndex === -1) return columns;
+
+        const newColumns = arrayMove(columns, activeIndex, overIndex);
+        newColumns.map((col, index) =>
+          col.order = index + 1
+        );
+
+
+        
+        // TO-DO: make API call to persist column order
+
+
+
+        return newColumns;
+      });
+    }
   };
 
 
@@ -236,21 +263,29 @@ export function Board({ props, onBack }) {
       />
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
         { boardColumns && boardColumns.length > 0 ? 
-          boardColumns.sort((a, b) => (a.order - b.order))
-          .map((col) => {
-            return (
-              <Column
-                key={col.id}
-                col={col}
-                onCreateTask={() => setCreatingTask(true)}
-                onOpenTaskCreation={setCreatingTaskColId}
-                onDeleteTask={handleDeleteTask}
-                onDeleteColumn={handleDeleteColumn}
-              />
-            );
-          }) : 
+          <SortableContext
+            items={boardColumns.map(col => col.id)} 
+            strategy={horizontalListSortingStrategy}
+          > 
+          {
+            boardColumns.sort((a, b) => (a.order - b.order))
+            .map((col) => {
+              return (
+                <Column
+                  key={col.id}
+                  col={col}
+                  onCreateTask={() => setCreatingTask(true)}
+                  onOpenTaskCreation={setCreatingTaskColId}
+                  onDeleteTask={handleDeleteTask}
+                  onDeleteColumn={handleDeleteColumn}
+                />
+              );
+            }) 
+          }
+          </SortableContext>
+          : 
           <p className="text-white text-2xl width-full absolute top-1/2 left-1/2 -translate-1/2 text-center">
-            Nothing here yet.<br/>
+            Nothing here yet.<br/><br/>
             Use the&nbsp;
             <span
               title="Create a new column"
@@ -274,6 +309,7 @@ export function Board({ props, onBack }) {
       </main>
       <DragOverlay>
         {activeTask ? <TaskCard task={activeTask} /> : null}
+        {activeColumn ? <Column col={activeColumn} /> : null}
       </DragOverlay>
     </DndContext>
   );
