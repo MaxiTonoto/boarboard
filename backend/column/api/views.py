@@ -10,14 +10,9 @@ class ColumnViewSet(viewsets.ModelViewSet):
     queryset = Column.objects.all()
 
     def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+          raise PermissionDenied
         board = get_object_or_404(Board, id=self.request.data.get("board"))
-
-        if not board:
-            raise NotFound
-        elif not self.request.user.is_authenticated:
+        if board.owner != self.request.user:
             raise PermissionDenied
-
-        if board.owner == self.request.user:
-            serializer.save()
-        else:
-            raise PermissionDenied
+        serializer.save()

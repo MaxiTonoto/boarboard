@@ -122,3 +122,4 @@ class Task(models.Model):
                 return super().save(*args, **kwargs)
 
             return super().save(*args, **kwargs)
+
