@@ -64,7 +64,7 @@ export function Board({ props, onBack }) {
     setCreatingTask(false);
     setCreatingColumn(false);
     setIsEditingTask(false);
-    setEditingTaskId(null);
+    setEditingTask(null);
   };
 
   const handleCreateTask = (columnId, task) => {
@@ -79,6 +79,21 @@ export function Board({ props, onBack }) {
   const handleEditTask = (task) => {
     setEditingTask(task);
     setIsEditingTask(true);
+  };
+  const handleEditedTask = (task, title, description) => {
+    setBoardColumns(cols => {
+      cols.forEach(col => {
+        if (col.id === task.column) {
+          col.tasks.forEach(colTask => {
+            if (colTask.id === task.id) {
+              colTask.title = title;
+              colTask.description = description;
+            }
+          });
+        }
+      });
+      return cols;
+    });
   };
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId, accessToken);
@@ -255,6 +270,7 @@ export function Board({ props, onBack }) {
         <EditTaskForm
           task={editingTask}
           onCloseForm={closeForm}
+          onTaskEdited={handleEditedTask}
         />
       )}
       {creatingColumn && (

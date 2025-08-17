@@ -3,7 +3,7 @@ import { Bounce, toast } from "react-toastify";
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../AuthContext";
 
-export function EditTaskForm({ task, onCloseForm }) {
+export function EditTaskForm({ task, onCloseForm, onTaskEdited }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const { accessToken } = useContext(AuthContext);
@@ -17,11 +17,12 @@ export function EditTaskForm({ task, onCloseForm }) {
         setTitle("");
         setDescription("");
         onCloseForm();
+        onTaskEdited(task, title, description);
       } else {
         toast.error(`Error editing task: ${response}`, toastOptions);
       }
     } catch (error) {
-      toast.error(`Error editing task: ${error.response?.data?.title[0] || response.message}`, toastOptions);
+      toast.error(`Error editing task: ${error?.response?.data?.title[0] || error.message}`, toastOptions);
     }
   };
 
