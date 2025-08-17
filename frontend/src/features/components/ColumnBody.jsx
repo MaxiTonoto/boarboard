@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy 
 } from "@dnd-kit/sortable";
 
-export function ColumnBody ({ col, onDeleteTask }) {
+export function ColumnBody ({ col, onEditTask, onDeleteTask }) {
     const taskIds = useMemo(() => 
         col.tasks.map((task) => task.id), [col.tasks]
       );
@@ -16,19 +16,21 @@ export function ColumnBody ({ col, onDeleteTask }) {
           type: "Column",
         },
       });
+
     return (
         <div
-        className={`flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%] transition overflow-y-auto ${isOver ? "bg-blue-300/10" : ""}`}
-        ref={setNodeRef}
-      >
-        <SortableContext
-          items={taskIds} strategy={verticalListSortingStrategy}
+          className={`flex flex-col gap-[0.5rem] p-[0.5rem] flex-1 max-w-[100%] min-w-[100%] transition overflow-y-auto ${isOver ? "bg-blue-300/10" : ""}`}
+          ref={setNodeRef}
         >
+          <SortableContext
+            items={taskIds} strategy={verticalListSortingStrategy}
+          >
           {col.tasks.sort((a, b) => a.order - b.order).map((task) => (
             <TaskCard
               key={task.id}
               task={task} 
               onDeleteTask={onDeleteTask}
+              onEditTask={onEditTask}
             />
           ))}
         </SortableContext>

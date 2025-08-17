@@ -8,7 +8,7 @@ export const BoardTitleDropdown = ({ props, onMouseLeave, onDowloadBoard, onDele
   return (
       <div
         onMouseLeave={onMouseLeave}
-        className="absolute top-[100%] left-1/2 -translate-x-1/2 min-w-md w-full min-h-[8rem] z-100 rounded shadow-xl min-w-fit min-h-fit flex flex-row justify-center align-center p-6 gap-6 bg-gray-700 text-white"
+        className="absolute top-[100%] left-1/2 -translate-x-1/2 min-w-md w-full min-h-[8rem] z-10000 rounded shadow-xl min-w-fit min-h-fit flex flex-row justify-center align-center p-6 gap-6 bg-gray-700 text-white"
       >
         {isConfirming ? 
         <div>

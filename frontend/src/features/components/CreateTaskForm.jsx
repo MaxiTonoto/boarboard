@@ -1,7 +1,7 @@
 import { postTask } from "../../api/taskApi";
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../../AuthContext";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../../AuthContext.jsx";
 
 export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCreatedNewTask }) {
   const [title, setTitle] = useState("");
@@ -25,7 +25,6 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
           setDescription("");
           onCreatedNewTask(targetColumn, response.data);
         } else {
-          console.log(response);
           toast.error(`Error creating task: ${response}`, toastOptions);
         }
       } catch (error) {

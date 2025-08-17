@@ -11,6 +11,7 @@ import {
   patchTaskOrder,
   patchTaskColumnAndOrder,
 } from "../../api/taskApi.js";
+import { patchColumnOrder } from "../../api/columnApi.js";
 import { getBoard, deleteBoard } from "../../api/boardApi.js";
 import { AuthContext } from "../../AuthContext.jsx";
 import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
@@ -19,6 +20,7 @@ import {
   SortableContext,
   horizontalListSortingStrategy  
 } from "@dnd-kit/sortable";
+import { EditTaskForm } from "../components/EditTaskForm.jsx";
 
 export function Board({ props, onBack }) {
   const { accessToken } = useContext(AuthContext);
@@ -27,6 +29,8 @@ export function Board({ props, onBack }) {
   const [activeColumn, setActiveColumn] = useState(null);
   const [creatingColumn, setCreatingColumn] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
+  const [isEditingTask, setIsEditingTask] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
   const [creatingTaskColId, setCreatingTaskColId] = useState(
     () => (props.columns?.[0]?.id ?? null)
   );
@@ -59,6 +63,8 @@ export function Board({ props, onBack }) {
   const closeForm = () => {
     setCreatingTask(false);
     setCreatingColumn(false);
+    setIsEditingTask(false);
+    setEditingTaskId(null);
   };
 
   const handleCreateTask = (columnId, task) => {
@@ -70,8 +76,12 @@ export function Board({ props, onBack }) {
       )
     ));
   }
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setIsEditingTask(true);
+  };
   const handleDeleteTask = (taskId) => {
-    deleteTask(taskId);
+    deleteTask(taskId, accessToken);
     setBoardColumns((prev) => {
       const newColumns = prev.map(col => {
         return {
@@ -117,7 +127,7 @@ export function Board({ props, onBack }) {
     const overId = over.id;
     if (activeId === overId) return;   // exit if was only a click
     
-    if (active.data.current?.type === "Task") {
+    if (active.data.current?.type === "Task") {   // moveda  task
       setBoardColumns(columns => {
         // dragged task's original column
         const activeColumn = columns.find((col) =>
@@ -189,29 +199,26 @@ export function Board({ props, onBack }) {
           });
         }
       });
-    } else if (active.data.current?.type === "Column") {
-      setBoardColumns(columns => {
-        const activeIndex = columns.findIndex(col => col.id === activeId);
-        const overIndex = columns.findIndex(col => col.id === overId);
+    } else if (active.data.current?.type === "Column") {   // moved a col
 
-        if (activeIndex === -1 || overIndex === -1) return columns;
+      setBoardColumns(cols => {
+        const activeIndex = cols.findIndex(col => col.id === activeId);
+        const overIndex = cols.findIndex(col => col.id === overId);
 
-        const newColumns = arrayMove(columns, activeIndex, overIndex);
-        newColumns.map((col, index) =>
-          col.order = index + 1
-        );
-
-
+        if (activeIndex === -1 || overIndex === -1) return;
+  
+        const newColumns = arrayMove(cols, activeIndex, overIndex);
+        const orderedColumns = newColumns.map((col, index) => ({ 
+          ...col, 
+          order: index + 1 
+        }));
         
-        // TO-DO: make API call to persist column order
+        patchColumnOrder(active.id, overIndex, accessToken);
 
-
-
-        return newColumns;
+        return orderedColumns;
       });
     }
   };
-
 
   return (
     <DndContext
@@ -235,12 +242,19 @@ export function Board({ props, onBack }) {
         bgColor={"rgba(120,255,120,0.5)"}
         onClick={() => {setCreatingTask(true)}}
       />
+
       {creatingTask && (
         <CreateTaskForm
           columnList={boardColumns}
           onCloseForm={closeForm}
           defaultColumnId={creatingTaskColId}
           onCreatedNewTask={handleCreateTask}
+        />
+      )}
+      {(isEditingTask && editingTask) && (
+        <EditTaskForm
+          task={editingTask}
+          onCloseForm={closeForm}
         />
       )}
       {creatingColumn && (
@@ -278,6 +292,7 @@ export function Board({ props, onBack }) {
                   onOpenTaskCreation={setCreatingTaskColId}
                   onDeleteTask={handleDeleteTask}
                   onDeleteColumn={handleDeleteColumn}
+                  onEditTask={handleEditTask}
                 />
               );
             }) 

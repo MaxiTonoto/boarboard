@@ -43,7 +43,26 @@ export const patchTaskColumnAndOrder = async (taskId, newColumn, newOrder) => {
   );
 };
 
-export const deleteTask = async (taskId) => {
+export const patchTaskContent = async (taskId, newTitle, newDescription, accessToken) => {
     
-  return axios.delete(TASK_URL + taskId + "/");
+  return axios.patch(
+    TASK_URL + taskId + "/",
+    {
+      title: newTitle,
+      description: newDescription,
+    },
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  );
+};
+
+export const deleteTask = async (taskId, accessToken) => {
+    
+  return axios.delete(
+    TASK_URL + taskId + "/",
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  );
 };

@@ -47,7 +47,7 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
   return (
     <>
       <button
-        className="absolute top-[50%] right-[3%] translate-y-[-50%] bg-[rgba(0,0,0,0.25)] px-[0.5rem] rounded-lg z-10 cursor-pointer"
+        className="absolute top-[50%] right-[3%] translate-y-[-50%] bg-[rgba(0,0,0,0.25)] px-[0.5rem] rounded-lg z-100 cursor-pointer"
         onClick={toggleDropdown}
       >
         <p className="translate-y-[-15%]">⌄</p>
@@ -55,7 +55,7 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
 
       {isDropdownOpen && (
         <ul
-          className={`absolute bg-[rgba(0,0,0,0.85)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%]
+          className={`absolute bg-[rgba(0,0,0,0.85)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%] z-100
           ${isDeleting ? "w-7/8" : "w-[9rem]"}`}
         >
           <li className="hover:bg-[rgba(72,72,72,0.45)] transition px-[0.5rem] rounded cursor-pointer"
@@ -64,7 +64,7 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
             onCreateTask();
             onOpenTaskCreation(props.id);
           }}>
-            ➕ Create
+            ➕ Task
           </li>
           <hr className="my-[0.5rem]"></hr>
           <li className="hover:bg-[rgba(72,72,72,0.45)] transition px-[0.5rem] rounded cursor-pointer"

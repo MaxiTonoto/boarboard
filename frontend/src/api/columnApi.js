@@ -14,6 +14,28 @@ export const postColumn = async (column, accessToken) => {
   );
 };
 
+export const patchColumnOrder = async (columnId, newOrder, accessToken) => {
+  
+  return axios.patch(
+    COLUMN_URL + columnId + "/",
+    {order: newOrder,},
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  )
+};
+
+export const patchColumnTitle = async (columnId, newTitle, accessToken) => {
+  
+  return axios.patch(
+    COLUMN_URL + columnId + "/",
+    {title: newTitle,},
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
+  )
+};
+
 export const deleteColumn = async (columnId, accessToken) => {
 
   return axios.delete(

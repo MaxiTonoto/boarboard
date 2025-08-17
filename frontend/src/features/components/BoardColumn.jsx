@@ -1,11 +1,11 @@
 import { ColumnDropdown } from "./ColumnDropdown.jsx";
-import { moveSvg } from "./TaskCard.jsx";
 import { useSortable } from "@dnd-kit/sortable";
 import { ColumnBody } from "./ColumnBody.jsx";
 import { CSS } from "@dnd-kit/utilities";
+import { MoveButton } from "./MoveButton.jsx";
+import { ColumnTitle } from "./ColumnTitle.jsx";
 
-
-export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, onDeleteColumn }) {
+export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, onDeleteColumn, onEditTask }) {
 
   const {
     attributes,
@@ -27,9 +27,6 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, on
     opacity: isDragging ? 0.5 : 1,
   };
 
-
-
-
   return (
     <div
       className="text-white h-[100%] min-w-[320px] w-1/3 rounded bg-[rgba(120,120,120,0.25)] flex flex-col relative"
@@ -38,22 +35,17 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, on
       {...attributes}
     >
       <div 
-        className="text-center w-[100%] bg-[rgba(255,255,255,0.05)] py-[0.5rem] rounded text-xl shadow-xl relative z-10 sticky top-0"
+        className="text-center w-[100%] bg-[rgba(255,255,255,0.05)] py-[0.5rem] rounded text-xl shadow-xl relative z-900 sticky top-0"
       >
-        <button
-          className="absolute top-1/2 -translate-y-2/3 left-1 m-1 bg-[rgba(44,44,44,0.85)] hover:bg-[rgba(44,44,44,0.95)] transition rounded-sm p-[0.2rem] cursor-move select-none z-90"
-          title="Hold & drag to move task"
-          {...listeners}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 380 380">
-            <path
-              fill="white"
-              fillRule="evenodd"
-              d={moveSvg}
-            />
-          </svg>
-        </button>
-        {col.title}
+        <MoveButton
+          position="top-1/2 -translate-y-2/3 left-1 m-1"
+          title="Hold and drag to move this column"
+          listeners={{...listeners}}
+        />
+        <ColumnTitle
+          title={col.title}
+          colId={col.id}
+        />
         <ColumnDropdown
           props={col}
           onCreateTask={onCreateTask}
@@ -66,6 +58,7 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, on
       <ColumnBody
         col={col}
         onDeleteTask={onDeleteTask}
+        onEditTask={onEditTask}
       />
     
     </div>
