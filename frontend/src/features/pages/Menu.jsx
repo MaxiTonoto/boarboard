@@ -79,7 +79,7 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
                 return (
                   <button
                     key={index}
-                    className="min-h-[100%] min-w-1/7 bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
+                    className="min-h-[100%] min-w-[182px] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
                     onClick={ () => {onOpenBoard(board)} }
                     title={board.title}
                   >
@@ -113,7 +113,7 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
                 return (
                   <button
                     key={index}
-                    className="min-h-[100%] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
+                    className="min-h-[100%] min-w-[182px] bg-[rgba(12,12,18,0.25)] rounded overflow-hidden p-[0.5rem] relative cursor-pointer aspect-4/3 shadow-[0px_0px_0px_rgba(0,0,0,0.5)] hover:shadow-[0px_0px_3px_rgba(0,0,0,0.75)] transition hover:scale-103"
                     onClick={ () => {onOpenBoard(board)} }
                   >
                     <BoardThumbnail

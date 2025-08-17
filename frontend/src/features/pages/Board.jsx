@@ -4,7 +4,7 @@ import { CreateTaskForm } from "../components/CreateTaskForm.jsx";
 import { CreateColumnForm } from "../components/CreateColumnForm.jsx";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { BoardTitle } from "../components/BoardTitle.jsx";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { Bounce, toast } from "react-toastify";
 import { 
   deleteTask,
@@ -174,7 +174,7 @@ export function Board({ props, onBack }) {
           const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
 
           // make API call to save change
-          patchTaskOrder(activeId, overIndex+1);
+          patchTaskOrder(activeId, overIndex+1, accessToken);
 
           // return columns as they are except for the modified one
           return columns.map((col) => col.id === activeColumn.id
@@ -200,7 +200,7 @@ export function Board({ props, onBack }) {
           newOverTasks.splice(overIndex, 0, { ...movedTask, columnId: overColumn.id });
 
           // TODO: api call to move task and update orders in both columns
-          patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1);
+          patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1, accessToken);
 
           return columns.map((col) => {
             if (col.id === activeColumn.id) {

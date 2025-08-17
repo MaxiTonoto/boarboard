@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
-import { AuthContext } from "../../AuthContext.jsx";
-import { Bounce, toast } from "react-toastify";
+import React, { useState } from "react";
 
 export function TaskCardOptions({ props, onEditTask, onDeleteTask }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);

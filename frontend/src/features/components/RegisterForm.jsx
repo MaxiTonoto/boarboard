@@ -42,7 +42,7 @@ export function RegisterForm({ swapAuthAction }) {
     e.preventDefault();
     
     if (!valid) {
-      toast.error("Password conditions are not met!", toastOptions);
+      toast.error("Password conditions are not met", toastOptions);
       return;
     }
 

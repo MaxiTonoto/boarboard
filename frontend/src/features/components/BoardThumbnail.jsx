@@ -7,9 +7,10 @@ export function BoardThumbnail({ props }) {
         <>
           <h2 
             className='text-left text-md text-white w-full h-[20%] absolute bottom-0 left-0 pl-2 pb-2 pr-2 bg-[rgba(0,0,0,0.2)] rounded truncate'
+            title={props.title}
           >
             {props.title}  
-          </h2>
+          </h2> 
           <div className='h-[100%] w-[100%] flex flex-row align-center justify-left gap-1'>
           {
             props.columns.map((item) => {

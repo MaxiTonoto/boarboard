@@ -16,30 +16,39 @@ export const postTask = async (task, accessToken) => {
   );
 };
 
-export const patchTaskOrder = async (taskId, newOrder) => {
+export const patchTaskOrder = async (taskId, newOrder, accessToken) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
-    {order: newOrder,}
+    {order: newOrder,},
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
   );
 };
 
-export const patchTaskColumn = async (taskId, newColumn) => {
+export const patchTaskColumn = async (taskId, newColumn, accessToken) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
-    {column: newColumn,}
+    {column: newColumn,},
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
   );
 };
 
-export const patchTaskColumnAndOrder = async (taskId, newColumn, newOrder) => {
+export const patchTaskColumnAndOrder = async (taskId, newColumn, newOrder, accessToken) => {
     
   return axios.patch(
     TASK_URL + taskId + "/",
     {
       column: newColumn,
       order: newOrder,
-    }
+    },
+    {headers: {
+      Authorization: `Bearer ${accessToken}`,
+    }}
   );
 };
 
