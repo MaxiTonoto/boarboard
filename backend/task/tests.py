@@ -8,7 +8,7 @@ class TaskModelSingleColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
         self.board = Board.objects.create(title="TestBoard", owner=self.user)
-        self.column = Column.objects.create(title="To Do", order=1, board_id=self.board)
+        self.column = Column.objects.create(title="To Do", order=1, board=self.board)
 
     def test_create_task_with_auto_order(self):
         task1 = Task.objects.create(title="Task 1", description="desc", order=1, column=self.column, owner=self.user)
@@ -96,8 +96,8 @@ class TaskModelChangeColumnTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="user1", password="pass")
         self.board = Board.objects.create(title="TestBoard", owner=self.user)
-        self.column1 = Column.objects.create(title="Pending", order=1, board_id=self.board)
-        self.column2 = Column.objects.create(title="Done", order=2, board_id=self.board)
+        self.column1 = Column.objects.create(title="Pending", order=1, board=self.board)
+        self.column2 = Column.objects.create(title="Done", order=2, board=self.board)
 
         for i in range(1, 6):
             Task.objects.create(
