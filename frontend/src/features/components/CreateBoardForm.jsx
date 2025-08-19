@@ -22,7 +22,7 @@ export function CreateBoardForm({ onCloseForm, onCreateBoard }) {
     }
 
     const postCurrentBoard = async () => {
-      try {asad
+      try {
         let response = await postBoard(
           accessToken, 
           {
@@ -33,10 +33,11 @@ export function CreateBoardForm({ onCloseForm, onCreateBoard }) {
           toast.success(`Created board ${response.data.title}`, toastOptions);
           onCloseForm();
           onCreateBoard();
+        } else {
+          toast.error(`Error creating board: ${response.message}`, toastOptions);
         }
       } catch (error) {
-        console.log(error);
-        toast.error(`Error creating board: ${error.response?.data?.detail || error.message}`, toastOptions);
+        toast.error(`Error creating board: ${error.message}`, toastOptions);
       }
     };
 

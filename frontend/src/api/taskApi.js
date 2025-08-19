@@ -17,7 +17,7 @@ export const postTask = async (task, accessToken) => {
 };
 
 export const patchTaskOrder = async (taskId, newOrder, accessToken) => {
-    
+      
   return axios.patch(
     TASK_URL + taskId + "/",
     {order: newOrder,},

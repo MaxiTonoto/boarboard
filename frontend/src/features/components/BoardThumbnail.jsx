@@ -13,7 +13,7 @@ export function BoardThumbnail({ props }) {
           </h2> 
           <div className='h-[100%] w-[100%] flex flex-row align-center justify-left gap-1'>
           {
-            props.columns.map((item) => {
+            props.columns.sort((a, b) => (a.order - b.order)).map((item) => {
                 
                 const thisR = Math.floor(Math.random() * 100 + 155);
                 const thisG = Math.floor(Math.random() * 100 + 155);

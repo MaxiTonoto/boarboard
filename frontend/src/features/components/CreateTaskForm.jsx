@@ -25,7 +25,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
           setDescription("");
           onCreatedNewTask(targetColumn, response.data);
         } else {
-          toast.error(`Error creating task: ${response}`, toastOptions);
+          toast.error(`Error creating task: ${response.message}`, toastOptions);
         }
       } catch (error) {
         toast.error(`Error creating task: ${error.message}`, toastOptions);

@@ -6,7 +6,7 @@ import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { BoardTitle } from "../components/BoardTitle.jsx";
 import React, { useState, useContext } from "react";
 import { Bounce, toast } from "react-toastify";
-import { 
+import {
   deleteTask,
   patchTaskOrder,
   patchTaskColumnAndOrder,
@@ -15,10 +15,10 @@ import { patchColumnOrder } from "../../api/columnApi.js";
 import { getBoard, deleteBoard } from "../../api/boardApi.js";
 import { AuthContext } from "../../AuthContext.jsx";
 import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
-import { 
-  arrayMove, 
+import {
+  arrayMove,
   SortableContext,
-  horizontalListSortingStrategy  
+  horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { EditTaskForm } from "../components/EditTaskForm.jsx";
 
@@ -32,14 +32,16 @@ export function Board({ props, onBack }) {
   const [isEditingTask, setIsEditingTask] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [creatingTaskColId, setCreatingTaskColId] = useState(
-    () => (props.columns?.[0]?.id ?? null)
+    () => props.columns?.[0]?.id ?? null
   );
 
   const downloadCurrentBoard = async () => {
     const currentBoard = await getBoard(props.id, accessToken);
-    const blob = new Blob([JSON.stringify(currentBoard.data, null, 2)], {type:"application/json"});
+    const blob = new Blob([JSON.stringify(currentBoard.data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = props.title.replace(".", "") + ".json";
     link.click();
@@ -52,12 +54,14 @@ export function Board({ props, onBack }) {
         toast.warning(`Deleted board ${props.title}`, toastOptions);
         onBack();
       } else {
-        toast.warning(`Error deleting board ${props.title}: ${response.message}`, toastOptions);
+        toast.warning(
+          `Error deleting board ${props.title}: ${response.message}`,
+          toastOptions
+        );
       }
     } catch (error) {
       toast.warning(`Error deleting board ${props.title}`, toastOptions);
     }
-    
   };
 
   const closeForm = () => {
@@ -68,23 +72,24 @@ export function Board({ props, onBack }) {
   };
 
   const handleCreateTask = (columnId, task) => {
-    setBoardColumns((prev) => ( 
-      prev.map((col) => col.id === columnId ?
-        // add new task only to modified column
-        { ...col, tasks: [...col.tasks, task]} :
-        col
+    setBoardColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId
+          ? // add new task only to modified column
+            { ...col, tasks: [...col.tasks, task] }
+          : col
       )
-    ));
-  }
+    );
+  };
   const handleEditTask = (task) => {
     setEditingTask(task);
     setIsEditingTask(true);
   };
   const handleEditedTask = (task, title, description) => {
-    setBoardColumns(cols => {
-      cols.forEach(col => {
+    setBoardColumns((cols) => {
+      cols.forEach((col) => {
         if (col.id === task.column) {
-          col.tasks.forEach(colTask => {
+          col.tasks.forEach((colTask) => {
             if (colTask.id === task.id) {
               colTask.title = title;
               colTask.description = description;
@@ -98,10 +103,10 @@ export function Board({ props, onBack }) {
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId, accessToken);
     setBoardColumns((prev) => {
-      const newColumns = prev.map(col => {
+      const newColumns = prev.map((col) => {
         return {
           ...col,
-          tasks: col.tasks.filter(task => task.id !== taskId),
+          tasks: col.tasks.filter((task) => task.id !== taskId),
         };
       });
       return newColumns;
@@ -121,18 +126,17 @@ export function Board({ props, onBack }) {
     setCreatingTaskColId(newColumn.id);
   };
   const handleDeleteColumn = (deletedColId) => {
-    setBoardColumns(prev => 
-      prev.filter((col) => col.id !== deletedColId)
-    );
+    setBoardColumns((prev) => prev.filter((col) => col.id !== deletedColId));
   };
-  
 
   const handleDragStart = (e) => {
     const { active } = e;
-    active.data.current?.type === "Task" && setActiveTask(active.data.current.task);
-    active.data.current?.type === "Column" && setActiveColumn(active.data.current.column);
+    active.data.current?.type === "Task" &&
+      setActiveTask(active.data.current.task);
+    active.data.current?.type === "Column" &&
+      setActiveColumn(active.data.current.column);
   };
-  
+
   const handleDragEnd = (e) => {
     setActiveTask(null);
     const { active, over } = e;
@@ -140,97 +144,122 @@ export function Board({ props, onBack }) {
 
     const activeId = active.id;
     const overId = over.id;
-    if (activeId === overId) return;   // exit if was only a click
-    
-    if (active.data.current?.type === "Task") {   // moveda  task
-      setBoardColumns(columns => {
-        // dragged task's original column
-        const activeColumn = columns.find((col) =>
-          col.tasks.some((task) => task.id === activeId)
-        );
-        // find the column where the task was dropped
-        const overColumn = boardColumns.find((col) => col.id === overId ||
+    if (activeId === overId) return; // exit if was only a click
+
+    const previousColumnsCopy = [...boardColumns];
+
+    if (active.data.current?.type === "Task") {   // moved a task
+      // dragged task's original column
+      const activeColumn = boardColumns.find((col) =>
+        col.tasks.some((task) => task.id === activeId)
+      );
+      // find the column where the task was dropped
+      const overColumn = boardColumns.find(
+        (col) => col.id === overId ||
           // if it was dropped over a task, get it's column
           col.tasks.some((task) => task.id === overId)
+      );
+
+      // guard clause in case a column wasn't found
+      if (!activeColumn || !overColumn) return boardColumns;
+
+      // helper function
+      const assignOrder = (tasks) =>
+        tasks.map((task, index) => ({ ...task, order: index + 1 }));
+
+      // reorder tasks on same column
+      if (activeColumn.id === overColumn.id) {
+        // index of the dragged task before the drag
+        const activeIndex = activeColumn.tasks.findIndex(
+          (t) => t.id === activeId
         );
 
-        // guard clause in case a column wasn't found
-        if (!activeColumn || !overColumn) return columns;
+        // index of the task that got the dragged task dropped over
+        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+        overIndex === -1 && (overIndex = overColumn.tasks.length - 1);
 
-        // helper function
-        const assignOrder = (tasks) =>
-          tasks.map((task, index) => ({ ...task, order: index + 1 }));
+        // apply reordering of tasks on a copy
+        const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
 
-        // reorder tasks on same column
-        if (activeColumn.id === overColumn.id) {
-          // index of the dragged task before the drag
-          const activeIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
+        // column set with modified one
+        const newColumns = boardColumns.map((col) =>
+          col.id === activeColumn.id
+            ? { ...col, tasks: assignOrder(newTasks) }
+            : col
+        );
 
-          // index of the task that got the dragged task dropped over
-          let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
-          (overIndex === -1) && (overIndex = overColumn.tasks.length-1)
+        // set new columns on the UI, before making api call
+        setBoardColumns(newColumns);
 
-          // apply reordering of tasks on a copy
-          const newTasks = arrayMove(activeColumn.tasks, activeIndex, overIndex);
+        // make API call to save change
+        patchTaskOrder(activeId, overIndex + 1, accessToken).catch((error) => {
+          toast.error(`Error reordering task: ${error.message}`, toastOptions);
+          setBoardColumns(previousColumnsCopy);
+        });
 
-          // make API call to save change
-          patchTaskOrder(activeId, overIndex+1, accessToken);
+      // dragged task to another column
+      } else {
+        const movedTask = activeColumn.tasks.find((t) => t.id === activeId);
 
-          // return columns as they are except for the modified one
-          return columns.map((col) => col.id === activeColumn.id
-              ? { ...col, tasks: assignOrder(newTasks) }
-              : col
-          );
+        // get dragged task's original column's tasks except for itself
+        const newActiveTasks = activeColumn.tasks.filter(
+          (t) => t.id !== activeId
+        );
 
-        // dragged task to another column
-        } else {
-          const movedTask = activeColumn.tasks.find((t) => t.id === activeId);
+        // get index of the task that got the dragged one dropped over
+        let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
+        // if dropped over the column (not a task), place at the end
+        overIndex === -1 && (overIndex = overColumn.tasks.length);
 
-          // get dragged task's original column's tasks except for itself
-          const newActiveTasks = activeColumn.tasks.filter((t) => t.id !== activeId);
+        const newOverTasks = [...overColumn.tasks];
 
-          // get index of the task that got the dragged one dropped over
-          let overIndex = overColumn.tasks.findIndex((t) => t.id === overId);
-          // if dropped over the column (not a task), place at the end
-          (overIndex === -1) && (overIndex = overColumn.tasks.length);
+        // target column's task list with changes
+        newOverTasks.splice(overIndex, 0, {
+          ...movedTask,
+          columnId: overColumn.id,
+        });
 
-          const newOverTasks = [...overColumn.tasks];
+        const newColumns = boardColumns.map((col) => {
+          if (col.id === activeColumn.id) {
+            // update origin column's task list
+            return { ...col, tasks: assignOrder(newActiveTasks) };
+          } else if (col.id === overColumn.id) {
+            // update target column's task list
+            return { ...col, tasks: assignOrder(newOverTasks) };
+          } else return col; // for all other columns
+        });
 
-          // target column's task list with changes
-          newOverTasks.splice(overIndex, 0, { ...movedTask, columnId: overColumn.id });
+        setBoardColumns(newColumns);
 
-          // TODO: api call to move task and update orders in both columns
-          patchTaskColumnAndOrder(movedTask.id, overColumn.id, overIndex+1, accessToken);
+        // api call to move task and update orders in both columns
+        patchTaskColumnAndOrder(
+          movedTask.id,
+          overColumn.id,
+          overIndex + 1,
+          accessToken
+        ).catch((error) => {   // rollback if there's an error
+          toast.error(`Error moving task: ${error.message}`, toastOptions);
+          setBoardColumns(previousColumnsCopy);
+        });
+      }
 
-          return columns.map((col) => {
-            if (col.id === activeColumn.id) {
-              // update origin column's task list
-              return { ...col, tasks: assignOrder(newActiveTasks) };
-            }
-            else if (col.id === overColumn.id) {
-              // update target column's task list
-              return { ...col, tasks: assignOrder(newOverTasks) };
-            } else return col;  // for all other columns
-          });
-        }
-      });
     } else if (active.data.current?.type === "Column") {   // moved a col
+      const activeIndex = boardColumns.findIndex((col) => col.id === activeId);
+      const overIndex = boardColumns.findIndex((col) => col.id === overId);
 
-      setBoardColumns(cols => {
-        const activeIndex = cols.findIndex(col => col.id === activeId);
-        const overIndex = cols.findIndex(col => col.id === overId);
+      if (activeIndex === -1 || overIndex === -1) return;
 
-        if (activeIndex === -1 || overIndex === -1) return;
-  
-        const newColumns = arrayMove(cols, activeIndex, overIndex);
-        const orderedColumns = newColumns.map((col, index) => ({ 
-          ...col, 
-          order: index + 1 
-        }));
-        
-        patchColumnOrder(active.id, overIndex, accessToken);
+      let newColumns = arrayMove(boardColumns, activeIndex, overIndex);
+      newColumns = newColumns.map((col, index) => ({
+        ...col,
+        order: index + 1,
+      }));
 
-        return orderedColumns;
+      setBoardColumns(newColumns);
+
+      patchColumnOrder(active.id, overIndex, accessToken).catch((error) => {
+        toast.error(`Error reordering column: ${error.message}`, toastOptions);
+        setBoardColumns(previousColumnsCopy);
       });
     }
   };
@@ -247,7 +276,9 @@ export function Board({ props, onBack }) {
         top="0"
         right="5rem"
         bgColor={"rgba(255,120,120,0.5)"}
-        onClick={() => {setCreatingColumn(true)}}
+        onClick={() => {
+          setCreatingColumn(true);
+        }}
       />
       <BoardPageButtons
         title="Create a new task"
@@ -255,7 +286,9 @@ export function Board({ props, onBack }) {
         top="0"
         right="0"
         bgColor={"rgba(120,255,120,0.5)"}
-        onClick={() => {setCreatingTask(true)}}
+        onClick={() => {
+          setCreatingTask(true);
+        }}
       />
 
       {creatingTask && (
@@ -266,7 +299,7 @@ export function Board({ props, onBack }) {
           onCreatedNewTask={handleCreateTask}
         />
       )}
-      {(isEditingTask && editingTask) && (
+      {isEditingTask && editingTask && (
         <EditTaskForm
           task={editingTask}
           onCloseForm={closeForm}
@@ -286,47 +319,51 @@ export function Board({ props, onBack }) {
       >
         &lArr;
       </button>
-      <BoardTitle 
-        props={props} 
-        onDowloadBoard={downloadCurrentBoard} 
-        onDeleteBoard={deleteCurrentBoard}  
+      <BoardTitle
+        props={props}
+        onDowloadBoard={downloadCurrentBoard}
+        onDeleteBoard={deleteCurrentBoard}
       />
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
-        { boardColumns && boardColumns.length > 0 ? 
+        {boardColumns && boardColumns.length > 0 ? (
           <SortableContext
-            items={boardColumns.map(col => col.id)} 
+            items={boardColumns.map((col) => col.id)}
             strategy={horizontalListSortingStrategy}
-          > 
-          {
-            boardColumns.sort((a, b) => (a.order - b.order))
-            .map((col) => {
-              return (
-                <Column
-                  key={col.id}
-                  col={col}
-                  onCreateTask={() => setCreatingTask(true)}
-                  onOpenTaskCreation={setCreatingTaskColId}
-                  onDeleteTask={handleDeleteTask}
-                  onDeleteColumn={handleDeleteColumn}
-                  onEditTask={handleEditTask}
-                />
-              );
-            }) 
-          }
+          >
+            {boardColumns
+              .sort((a, b) => a.order - b.order)
+              .map((col) => {
+                return (
+                  <Column
+                    key={col.id}
+                    col={col}
+                    onCreateTask={() => setCreatingTask(true)}
+                    onOpenTaskCreation={setCreatingTaskColId}
+                    onDeleteTask={handleDeleteTask}
+                    onDeleteColumn={handleDeleteColumn}
+                    onEditTask={handleEditTask}
+                  />
+                );
+              })}
           </SortableContext>
-          : 
+        ) : (
           <p className="text-white text-2xl width-full absolute top-1/2 left-1/2 -translate-1/2 text-center">
-            Nothing here yet.<br/><br/>
+            Nothing here yet.
+            <br />
+            <br />
             Use the&nbsp;
             <span
               title="Create a new column"
               className="bg-[rgba(255,120,120,0.5)] p-2 rounded cursor-pointer hover:brightness-95 hover:shadow-sm select-none"
-              onClick={() => {setCreatingColumn(true)}}
+              onClick={() => {
+                setCreatingColumn(true);
+              }}
             >
               +▮
             </span>
             &nbsp;button to create your first column!
-            <br/><br/>
+            <br />
+            <br />
             Then use the&nbsp;
             <span
               title="Create a new task (but not with this button, there's no columns yet. Use the one on the top-right corner instead)"
@@ -336,7 +373,7 @@ export function Board({ props, onBack }) {
             </span>
             &nbsp;button to add tasks!
           </p>
-        }
+        )}
       </main>
       <DragOverlay>
         {activeTask ? <TaskCard task={activeTask} /> : null}
@@ -345,7 +382,6 @@ export function Board({ props, onBack }) {
     </DndContext>
   );
 }
-
 
 const toastOptions = {
   position: "bottom-left",

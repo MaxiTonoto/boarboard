@@ -27,9 +27,11 @@ export function CreateColumnForm({ board, onCloseForm, onCreatedNewColumn }) {
           setOrder(0);
 
           onCreatedNewColumn(response.data);
+        } else {
+          toast.error(`Error creating column: ${response.message}`, toastOptions);
         }
       } catch (error) {
-        toast.error(`Error creating column: ${error.response.data.detail || error.message}`, toastOptions);
+        toast.error(`Error creating column: ${error.message}`, toastOptions);
       }
     };
 
