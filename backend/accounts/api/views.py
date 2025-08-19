@@ -32,7 +32,7 @@ def make_token_response_for_user(
         value=str(refresh),
         httponly=True,
         secure=True,
-        samesite="Strict",
+        samesite="Lax",
         max_age=604800,  # 7 days
         path="/",
     )
@@ -139,7 +139,7 @@ class LogoutView(APIView):
 
         response.delete_cookie(
             key="refresh_token",
-            path="/api/auth/",
+            path="/",
             domain=None
         )
         return response

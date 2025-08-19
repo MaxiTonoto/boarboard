@@ -5,6 +5,9 @@ from rest_framework import viewsets
 from board.api.serializers import BoardSerializer
 from board.models import Board
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
 PUBLIC_BOARD_IDS = [1,2,4]
 
 class IsBoardOwnerOrReadOnly(BasePermission):
@@ -19,6 +22,7 @@ class IsBoardOwnerOrReadOnly(BasePermission):
 
 
 class BoardViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     serializer_class = BoardSerializer
     queryset = Board.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, IsBoardOwnerOrReadOnly]
@@ -35,6 +39,7 @@ class BoardViewSet(viewsets.ModelViewSet):
             raise PermissionDenied
             
 class UserBoardsViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     serializer_class = BoardSerializer
     permission_classes = [IsAuthenticated]
     queryset = Board.objects.all()

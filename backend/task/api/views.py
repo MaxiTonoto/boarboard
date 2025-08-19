@@ -9,8 +9,10 @@ from board.models import Board
 from task.models import Task
 from board.api.views import PUBLIC_BOARD_IDS
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class TaskViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -20,7 +22,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         # from public boards
         if not self.request.user.is_authenticated:
           return Task.objects.filter(column__owner__id__in=PUBLIC_BOARD_IDS)
-        return Task.objects.filter(column__owner=self.request.user)
+        return Task.objects.filter(column__board__owner=self.request.user)
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:

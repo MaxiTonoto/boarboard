@@ -6,8 +6,10 @@ from column.api.serializers import ColumnSerializer
 from board.models import Board
 from board.api.views import PUBLIC_BOARD_IDS
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ColumnViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     serializer_class = ColumnSerializer
     queryset = Column.objects.all()
 
