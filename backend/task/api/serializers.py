@@ -9,4 +9,4 @@ class TaskSerializer(serializers.ModelSerializer):
             "order", "owner", "column",
         ]
 
-        read_only_fields = ("owner",)
+        read_only_fields = ("id", "owner",)

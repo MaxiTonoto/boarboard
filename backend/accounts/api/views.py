@@ -32,7 +32,7 @@ def make_token_response_for_user(
         value=str(refresh),
         httponly=True,
         secure=True,
-        samesite="None",
+        samesite="Strict",
         max_age=604800,  # 7 days
         path="/",
     )

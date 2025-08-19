@@ -1,13 +1,15 @@
-from rest_framework.permissions import BasePermission, IsAuthenticated, AllowAny, SAFE_METHODS
+from rest_framework.permissions import BasePermission, IsAuthenticated, AllowAny, SAFE_METHODS, IsAuthenticatedOrReadOnly
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets
 
 from board.api.serializers import BoardSerializer
 from board.models import Board
 
-class IsOwnerOrReadOnly(BasePermission):
+PUBLIC_BOARD_IDS = [1,2,4]
+
+class IsBoardOwnerOrReadOnly(BasePermission):
     """
-    only the owner can create/delete board.
+    only the owner can create/delete the board.
     everyone can read if queryset allows.
     """
     def has_object_permission(self, request, view, obj):
@@ -19,16 +21,12 @@ class IsOwnerOrReadOnly(BasePermission):
 class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     queryset = Board.objects.all()
-
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return [AllowAny()]
-        return [IsAuthenticated(), IsOwnerOrReadOnly()]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsBoardOwnerOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
             return Board.objects.filter(owner=self.request.user)
-        return Board.objects.filter(id__in=[1, 2, 3])
+        return Board.objects.filter(id__in=PUBLIC_BOARD_IDS)
 
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:

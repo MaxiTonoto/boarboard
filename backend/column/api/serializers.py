@@ -8,3 +8,4 @@ class ColumnSerializer(serializers.ModelSerializer):
     class Meta:
         model = Column
         fields = ["id", "title", "order", "tasks", "board",]
+        read_only_fields = "id",
