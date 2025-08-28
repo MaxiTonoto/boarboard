@@ -27,7 +27,8 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", '127.0.0.1',]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+# SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = "6mv!4i+#^xzk&&$7t5j862i30p=wmgxwqa=t2=-n^f^2r54gf="
 
 # Application definition
 INSTALLED_APPS = [
