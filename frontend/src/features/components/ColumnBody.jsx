@@ -8,12 +8,12 @@ import {
 
 export function ColumnBody ({ col, onEditTask, onDeleteTask }) {
     const taskIds = useMemo(() => 
-        col.tasks.map((task) => task.id), [col.tasks]
+        col.tasks.map((task) => `task-${task.id}`), [col.tasks]
       );
     const { setNodeRef, isOver } = useDroppable({
-        id: col.id,
+        id: `col-bod-${col.id}`,
         data: {
-          type: "Column",
+          type: "Column-body",
         },
       });
 

@@ -22,31 +22,29 @@ function App() {
     if (!accessTokenExp) return;
     const expiresInMs = (accessTokenExp * 1000);
     
-    // refresh 30s before the token expires
-    const refreshBeforeExpiry = expiresInMs - Date.now() - 30000; 
+    // refresh 2m before the token expires
+    const refreshBeforeExpiry = expiresInMs - Date.now() - 120000; 
+
+    const timeoutId = setTimeout(() => {
+      try {
+        refreshToken();
+      } catch (error) {
+        toast.error(`Authentication error: ${error}`, {
+          position: "bottom-left",
+          autoClose: 40000,
+          closeOnClick: true,
+          pauseOnHover: false,
+          theme: "dark",
+          transition: Bounce,
+        });
+      }
+    }, refreshBeforeExpiry);
+
+    return () => clearTimeout(timeoutId);
     
-    if (refreshBeforeExpiry > 0) {
-      const timeoutId = setTimeout(() => {
-        try {
-          refreshToken();
-        } catch (error) {
-          toast.error(`Authentication error: ${error}`, {
-            position: "bottom-left",
-            autoClose: 40000,
-            closeOnClick: true,
-            pauseOnHover: false,
-            theme: "dark",
-            transition: Bounce,
-          });
-        }
-      }, refreshBeforeExpiry);
-  
-      return () => clearTimeout(timeoutId);
-    }
   }, [accessTokenExp]);
 
   const refreshToken = async () => {
-    
     const newToken = await refreshUser();
     setAccessToken(newToken?.data?.access_token);
     setAccessTokenExp(newToken?.data?.access_token_exp);

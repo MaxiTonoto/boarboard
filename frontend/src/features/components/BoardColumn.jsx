@@ -15,11 +15,12 @@ export function Column({ col, onCreateTask, onOpenTaskCreation, onDeleteTask, on
     transition,
     isDragging,
   } = useSortable({
-    id: col.id,
+    id: `col-${col.id}`,
     data: {
       type: "Column",
       col,
     },
+    handle: true,
   });
   const style = {
     transition,

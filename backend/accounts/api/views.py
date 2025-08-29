@@ -32,7 +32,7 @@ def make_token_response_for_user(
         value=str(refresh),
         httponly=True,
         secure=True,
-        samesite="Lax",
+        samesite="None",
         max_age=604800,  # 7 days
         path="/",
     )
@@ -40,7 +40,7 @@ def make_token_response_for_user(
     # add an access token for immediate use
     access_token = refresh.access_token
     response.data["access_token"] = str(access_token)
-    response.data["access_token_exp"] = access_token['exp']   
+    response.data["access_token_exp"] = access_token['exp']
     return response
 
 
@@ -117,6 +117,7 @@ class RefreshTokenView(APIView):
             refresh = RefreshToken(received_token)
 
             new_access_token = refresh.access_token
+
             return Response(
                 {
                     'access_token':str(new_access_token),

@@ -33,11 +33,12 @@ export function TaskCard({ task, onEditTask, onDeleteTask }) {
     transition,
     isDragging,
   } = useSortable({
-    id: task.id,
+    id: `task-${task.id}`,
     data: {
       type: "Task",
       task,
     },
+    handle: true,
   });
 
   const style = {

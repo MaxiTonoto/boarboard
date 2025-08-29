@@ -131,6 +131,7 @@ export function Board({ props, onBack }) {
 
   const handleDragStart = (e) => {
     const { active } = e;
+
     active.data.current?.type === "Task" &&
       setActiveTask(active.data.current.task);
     active.data.current?.type === "Column" &&
@@ -139,11 +140,12 @@ export function Board({ props, onBack }) {
 
   const handleDragEnd = (e) => {
     setActiveTask(null);
+    setActiveColumn(null);
     const { active, over } = e;
     if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
+    const activeId = Number((active.id).replace(/\D/g, ""));
+    const overId = Number((over.id).replace(/\D/g, ""));
     if (activeId === overId) return; // exit if was only a click
 
     const previousColumnsCopy = [...boardColumns];
@@ -153,12 +155,13 @@ export function Board({ props, onBack }) {
       const activeColumn = boardColumns.find((col) =>
         col.tasks.some((task) => task.id === activeId)
       );
+
       // find the column where the task was dropped
       const overColumn = boardColumns.find(
-        (col) => col.id === overId ||
-          // if it was dropped over a task, get it's column
-          col.tasks.some((task) => task.id === overId)
-      );
+        (col) => col.id === overId && over.data.current?.type === "Column"
+        || // if it was dropped over a task, get it's column
+        col.tasks.some((task) => task.id === overId && over.data.current?.type === "Task")
+      ) 
 
       // guard clause in case a column wasn't found
       if (!activeColumn || !overColumn) return boardColumns;
@@ -257,7 +260,7 @@ export function Board({ props, onBack }) {
 
       setBoardColumns(newColumns);
 
-      patchColumnOrder(active.id, overIndex, accessToken).catch((error) => {
+      patchColumnOrder(activeId, overIndex, accessToken).catch((error) => {
         toast.error(`Error reordering column: ${error.message}`, toastOptions);
         setBoardColumns(previousColumnsCopy);
       });
@@ -327,7 +330,7 @@ export function Board({ props, onBack }) {
       <main className="h-[88%] w-[98%] m-auto bg-[rgba(0,0,0,0.25)] rounded shadow-[0_0_16px_#000] relative flex flex-row gap-[0.5rem] overflow-x-auto">
         {boardColumns && boardColumns.length > 0 ? (
           <SortableContext
-            items={boardColumns.map((col) => col.id)}
+            items={boardColumns.map((col) => `col-${col.id}`)}
             strategy={horizontalListSortingStrategy}
           >
             {boardColumns

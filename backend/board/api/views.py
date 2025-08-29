@@ -8,7 +8,7 @@ from board.models import Board
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-PUBLIC_BOARD_IDS = [1,2,4]
+PUBLIC_BOARD_IDS = [1,2,3]
 
 class IsBoardOwnerOrReadOnly(BasePermission):
     """

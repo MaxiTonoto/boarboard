@@ -14,7 +14,7 @@ class ColumnViewSet(viewsets.ModelViewSet):
     queryset = Column.objects.all()
 
     def get_queryset(self):
-      if not request.user.is_authenticated:
+      if not self.request.user.is_authenticated:
         return Column.objects.filter(board__id__in=PUBLIC_BOARD_IDS)
 
       return Column.objects.filter(board__owner=self.request.user)
