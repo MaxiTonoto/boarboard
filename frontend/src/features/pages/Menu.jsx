@@ -5,6 +5,7 @@ import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { CreateBoardForm } from "../components/CreateBoardForm.jsx";
 import { AuthContext, CurrentUserContext } from "../../AuthContext.jsx";
 import { refreshUser } from "../../api/authApi.js";
+import boarImage from "../../assets/boar.webp";
 
 export function Menu({ onOpenBoard, onGoToAuth }) {
   const { accessToken, setAccessToken } = useContext(AuthContext);
@@ -131,6 +132,11 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
               </>
             ) }
           </section>
+          <img
+            className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1/4 w-auto opacity-[0.5]"
+            style={{ filter: "sepia(100%) hue-rotate(180deg)", userSelect: "none", }}
+            src={boarImage}
+          />
         </section>
       </main>
     </>
