@@ -1,14 +1,20 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { deleteColumn } from "../../api/columnApi.js";
 import { Bounce, toast } from "react-toastify";
 import { AuthContext } from "../../AuthContext.jsx";
 
 export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDeleteColumn }) {
+  const [visible, setVisible] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDeleteInput, setConfirmDeleteInput] = useState(""); 
   const { accessToken } = useContext(AuthContext);
 
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, [isDropdownOpen]);
+  
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
     setIsDeleting(false);
@@ -53,10 +59,10 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
         <p className="translate-y-[-15%]">⌄</p>
       </button>
 
-      {isDropdownOpen && (
         <ul
-          className={`absolute bg-[rgba(0,0,0,0.85)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%] z-100
-          ${isDeleting ? "w-7/8" : "w-[9rem]"}`}
+          className={`absolute bg-[rgba(0,0,0,0.85)] shadow-xl p-[0.75rem] rounded-lg top-[82%] right-[2%] z-100 transition-transform duration-100 motion-reduce:transition-none origin-top
+            ${isDeleting ? "w-7/8" : "w-[9rem]"}  
+            ${isDropdownOpen ? "scale-y-[100%]" : "scale-y-0 pointer-events-none"}`}
         >
           <li className="hover:bg-[rgba(72,72,72,0.45)] transition px-[0.5rem] rounded cursor-pointer"
           title="Create a new task"
@@ -114,7 +120,6 @@ export function ColumnDropdown({ props, onCreateTask, onOpenTaskCreation, onDele
             }
           </li>
         </ul>
-      )}
     </>
   );
 }

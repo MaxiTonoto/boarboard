@@ -157,10 +157,10 @@ export function Board({ props, onBack }) {
       );
 
       // find the column where the task was dropped
-      console.log(over, overId);
       const overColumn = boardColumns.find(
         (col) => (col.id === overId) && (
-          over.data.current?.type === "Column-body" || "Column"
+          (over.data.current?.type === "Column-body") || 
+          (over.data.current?.type === "Column")
         ) || // if it was dropped over a task, get it's column
         col.tasks.some((task) => task.id === overId && over.data.current?.type === "Task")
       );

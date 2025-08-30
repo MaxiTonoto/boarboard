@@ -132,8 +132,14 @@ export function Menu({ onOpenBoard, onGoToAuth }) {
               </>
             ) }
           </section>
+          <p
+            className="absolute bottom-3/100 left-2 text-white text-3xl w-full text-center opacity-50"
+            style={{ filter: "sepia(100%) hue-rotate(180deg)", userSelect: "none", }}
+          >
+            <span className="mr-20">BOAR</span> BOARD
+          </p>
           <img
-            className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1/4 w-auto opacity-[0.5]"
+            className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1/4 w-auto opacity-50"
             style={{ filter: "sepia(100%) hue-rotate(180deg)", userSelect: "none", }}
             src={boarImage}
           />

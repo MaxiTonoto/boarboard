@@ -16,6 +16,14 @@ export function RegisterForm({ swapAuthAction }) {
     match: false,
   });
 
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, []);
+
+
   useEffect(() => {
     setValidations({
       minChars: password1.length >= 8,
@@ -68,7 +76,7 @@ export function RegisterForm({ swapAuthAction }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute top-[50%] left-[50%] -translate-1/2 w-[65%] h-[95%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1"
+      className={`absolute top-[50%] left-[50%] -translate-1/2 w-[65%] h-[95%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1 transition-opacity duration-100 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-50"}`}
     >
       <h2
         className="text-center text-5xl py-[0.5rem] text-white w-[100%] mb-[2rem]"

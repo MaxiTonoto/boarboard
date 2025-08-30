@@ -1,14 +1,21 @@
-import react, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 
 export const BoardTitleDropdown = ({ props, onMouseLeave, onDowloadBoard, onDeleteBoard }) => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmDeleteInput, setConfirmDeleteInput] = useState(""); 
 
+  const [visible, setVisible] = useState(false);
+  
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, []);
+
   return (
       <div
         onMouseLeave={onMouseLeave}
-        className="absolute top-[100%] left-1/2 -translate-x-1/2 min-w-md w-full min-h-[8rem] z-10000 rounded shadow-xl min-w-fit min-h-fit flex flex-row justify-center align-center p-6 gap-6 bg-gray-700 text-white"
+        className={`absolute top-[100%] left-1/2 -translate-x-1/2 min-w-md w-full min-h-[8rem] z-10000 rounded shadow-xl min-w-fit min-h-fit flex flex-row justify-center align-center p-6 gap-6 bg-gray-700 text-white transition-transform duration-200 motion-reduce:transition-none origin-top ${visible ? "scale-y-[100%]" : "scale-y-0"}`}
       >
         {isConfirming ? 
         <div>

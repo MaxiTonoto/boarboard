@@ -6,11 +6,17 @@ import { TaskCardOptions } from "./TaskCardOptions.jsx";
 
 export function TaskCard({ task, onEditTask, onDeleteTask }) {
 
+  const [poppedOut, setPoppedOut] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [openDescription, setOpenDescription] = useState(false);
 
   const descriptionContainerRef = useRef(null);
   const descriptionRef = useRef(null);
   const [descriptionIsCutOff, setDescriptionIsCutOff] = useState(false);
+
+  const handleToggleDropdown = () => {
+    setDropdownOpen(prev => !prev);
+  };
 
   useEffect(() => {
     if (descriptionContainerRef.current && descriptionRef.current) {
@@ -19,7 +25,9 @@ export function TaskCard({ task, onEditTask, onDeleteTask }) {
         descriptionRef.current.scrollHeight
       );
     }
-  }, []);
+    const delay = setTimeout(() => setPoppedOut(true), 10);
+    return () => clearTimeout(delay);
+  }, [task]);
 
   const handleDelete = () => {
     onDeleteTask(task.id);
@@ -49,13 +57,15 @@ export function TaskCard({ task, onEditTask, onDeleteTask }) {
 
   return (
     <article  
-      className="bg-[rgba(112,112,112,0.75)] rounded py-[0.5rem] border-2 border-[rgba(14,14,50,0.75)] relative"
+      className={`bg-[rgba(112,112,112,0.75)] rounded py-[0.5rem] border-2 border-[rgba(14,14,50,0.75)] relative z-0  transition-transform duration-100 motion-reduce:transition-none
+      ${poppedOut ? "scale-100" : "scale-105"}
+      ${dropdownOpen ? "z-10" : "z-0"}`}
       ref={setNodeRef}
       style={style}
       {...attributes}
     >
       <h2 
-        className="text-lg px-2 pb-1 z-1 w-full text-left"           
+        className="text-lg px-2 pb-1 z-1 max-w-8/9 text-left"           
       >
         {task.title}
       </h2>
@@ -63,15 +73,17 @@ export function TaskCard({ task, onEditTask, onDeleteTask }) {
         props={task}
         onEditTask={onEditTask}
         onDeleteTask={handleDelete}
+        dropdownOpen={dropdownOpen}
+        onToggleDropdown={handleToggleDropdown}
       />
       <hr className="border-t-2 border-[rgba(14,14,50,0.5)] w-[98%] m-auto"></hr>
       <div
         ref={descriptionContainerRef}
-        className={`overflow-hidden relative
-          ${openDescription ? "max-h-full" : "max-h-[5rem] cursor-pointer"}
+        className={`overflow-hidden relative transition-max-h duration-300 motion-reduce:transition-none
+          ${openDescription ? "max-h-[100%]" : "max-h-[5rem] cursor-pointer"}
         `}
       >
-        <p ref={descriptionRef} className="px-2 pt-1 break-all">
+        <p ref={descriptionRef} className="wrap-break-word w-19/20 mx-1 px-2 pt-1 break-normal">
           {task.description}
         </p>
       </div>

@@ -1,5 +1,5 @@
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { BoardPageButtons } from "../components/BoardPageButtons.jsx";
 import { loginUser } from "../../api/authApi.js";
 import { AuthContext, AuthExpiryContext, CurrentUserContext } from "../../AuthContext.jsx";
@@ -11,7 +11,13 @@ export function LoginForm({ swapAuthAction }) {
   
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
+
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +50,7 @@ export function LoginForm({ swapAuthAction }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute top-[50%] left-[50%] -translate-1/2 w-[50%] h-[75%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1"
+      className={`absolute top-[50%] left-[50%] -translate-1/2 w-[50%] h-[75%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1 transition-opacity duration-100 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-50"}`}
     >
       <div
         className="relative h-full w-full"

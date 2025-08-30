@@ -20,11 +20,11 @@ export function ColumnTitle({ title, colId }) {
       if (response.status === 200) {
         toast.success("Updated column title!", toastOptions);
       } else {
-        toast.error("Error updating column title", toastOptions)
+        toast.error(`Error updating column title ${response.message}`, toastOptions);
       }
       setEditingTitle(false);
     } catch (error) {
-      console.log(error);
+      toast.error(`Error updating column title: ${error.response.statusText}`, toastOptions)
     } 
   };
 

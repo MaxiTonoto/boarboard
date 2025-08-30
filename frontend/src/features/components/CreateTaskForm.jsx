@@ -1,6 +1,6 @@
 import { postTask } from "../../api/taskApi";
 import { Bounce, toast } from "react-toastify";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../AuthContext.jsx";
 
 export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCreatedNewTask }) {
@@ -8,6 +8,13 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
   const [description, setDescription] = useState("");
   const [targetColumn, setTargetColumn] = useState(defaultColumnId);
   const { accessToken } = useContext(AuthContext);
+
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,7 +45,7 @@ export function CreateTaskForm({ columnList, onCloseForm, defaultColumnId, onCre
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute top-[50%] left-[50%] -translate-1/2 w-[95%] h-[95%] shadow-xl z-1000 text-white p-[1rem] rounded-md border-2 border-[rgba(12,12,12,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,1)_33%,rgba(24,24,24,0.75)_50%,rgba(12,12,12,0.95)_66%)]"
+      className={`absolute top-[50%] left-[50%] -translate-1/2 w-[95%] h-[95%] shadow-xl z-1000 text-white p-[1rem] rounded-md border-2 border-[rgba(12,12,12,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,1)_33%,rgba(24,24,24,0.75)_50%,rgba(12,12,12,0.95)_66%)] transition-opacity duration-100 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-0"}`}
     >
       <p
         onClick={onCloseForm}

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { LoginForm } from "../components/LoginForm.jsx";
 import { RegisterForm } from "../components/RegisterForm.jsx";
 import { AuthContext, CurrentUserContext } from '../../AuthContext.jsx';
@@ -10,6 +10,13 @@ export function Auth({ onBack }) {
   const { setAccessToken, accessToken } = useContext(AuthContext);
   // login is default auth action
   const [login, setLogin] = useState(true);
+
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const delay = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(delay);
+  }, []);
 
   const handleLogOut = async () => {
     const response = await logoutUser(accessToken);
@@ -31,7 +38,7 @@ export function Auth({ onBack }) {
       </button>
       { currentUser ? 
         <div
-          className="absolute top-[50%] left-[50%] -translate-1/2 w-[50%] h-[75%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1"
+          className={`absolute top-[50%] left-[50%] -translate-1/2 w-[50%] h-[75%] shadow-2xl text-white p-[1rem] rounded-md border-2 border-[rgba(52,52,52,0.75)] bg-[linear-gradient(to_top,rgba(12,12,12,0.75)_33%,rgba(24,24,24,0.5)_50%,rgba(12,12,12,0.95)_66%)] z-1 transition-opacity duration-100 motion-reduce:transition-none ${visible ? "opacity-100" : "opacity-50"}`}
         >
           <h1 
             className="text-white text-4xl text-center w-full mb-4 absolute top-1/4 left-1/2 -translate-1/2"
